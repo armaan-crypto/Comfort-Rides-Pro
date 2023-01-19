@@ -9,13 +9,40 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        ZStack {
+            HomeBackgroundView()
+            VStack {
+                Spacer()
+                    .frame(height: 80)
+                Image(uiImage: UIImage(named: "logo")!)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200)
+                    .cornerRadius(20)
+                Spacer()
+                Button {
+                    print("hi")
+                } label: {
+                    Text("Sign Up or Sign In To Your Account")
+                        .foregroundColor(.blue)
+                        .padding()
+                        .bold()
+                }.background(.white)
+                    .cornerRadius(20)
+                Spacer()
+                    .frame(height: 100)
+            }
         }
         .padding()
+    }
+}
+
+struct HomeBackgroundView: View {
+    var body: some View {
+        Image(uiImage: UIImage(named: "homescreen")!)
+            .resizable()
+            .scaledToFill()
+            .frame(height: 880)
     }
 }
 

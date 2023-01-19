@@ -11,6 +11,8 @@
 		0854173C297620920068FCB1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0854173B297620920068FCB1 /* ContentView.swift */; };
 		0854173E297620930068FCB1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0854173D297620930068FCB1 /* Assets.xcassets */; };
 		08541741297620930068FCB1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 08541740297620930068FCB1 /* Preview Assets.xcassets */; };
+		085417492978C28C0068FCB1 /* BookRide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 085417482978C28C0068FCB1 /* BookRide.swift */; };
+		0854174B2978C97D0068FCB1 /* Ride.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0854174A2978C97D0068FCB1 /* Ride.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +21,9 @@
 		0854173B297620920068FCB1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		0854173D297620930068FCB1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		08541740297620930068FCB1 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		085417472978C1010068FCB1 /* Comfort Rides Pro.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Comfort Rides Pro.entitlements"; sourceTree = "<group>"; };
+		085417482978C28C0068FCB1 /* BookRide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookRide.swift; sourceTree = "<group>"; };
+		0854174A2978C97D0068FCB1 /* Ride.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ride.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,10 +56,13 @@
 		08541738297620920068FCB1 /* Comfort Rides Pro */ = {
 			isa = PBXGroup;
 			children = (
+				085417472978C1010068FCB1 /* Comfort Rides Pro.entitlements */,
 				08541739297620920068FCB1 /* Comfort_Rides_ProApp.swift */,
 				0854173B297620920068FCB1 /* ContentView.swift */,
 				0854173D297620930068FCB1 /* Assets.xcassets */,
 				0854173F297620930068FCB1 /* Preview Content */,
+				085417482978C28C0068FCB1 /* BookRide.swift */,
+				0854174A2978C97D0068FCB1 /* Ride.swift */,
 			);
 			path = "Comfort Rides Pro";
 			sourceTree = "<group>";
@@ -138,7 +146,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				0854173C297620920068FCB1 /* ContentView.swift in Sources */,
+				0854174B2978C97D0068FCB1 /* Ride.swift in Sources */,
 				0854173A297620920068FCB1 /* Comfort_Rides_ProApp.swift in Sources */,
+				085417492978C28C0068FCB1 /* BookRide.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,6 +274,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Comfort Rides Pro/Comfort Rides Pro.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Comfort Rides Pro/Preview Content\"";
@@ -293,6 +304,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Comfort Rides Pro/Comfort Rides Pro.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Comfort Rides Pro/Preview Content\"";
