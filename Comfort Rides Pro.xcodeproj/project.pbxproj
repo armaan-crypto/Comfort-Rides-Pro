@@ -7,23 +7,55 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0801DF6429E375BC00EE2A3E /* Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0801DF6329E375BC00EE2A3E /* Test.swift */; };
+		08355DEF29A1A949000F434C /* StartingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08355DEE29A1A949000F434C /* StartingScreen.swift */; };
+		08355DF129A1B126000F434C /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08355DF029A1B126000F434C /* Constants.swift */; };
 		0854173A297620920068FCB1 /* Comfort_Rides_ProApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08541739297620920068FCB1 /* Comfort_Rides_ProApp.swift */; };
 		0854173C297620920068FCB1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0854173B297620920068FCB1 /* ContentView.swift */; };
 		0854173E297620930068FCB1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0854173D297620930068FCB1 /* Assets.xcassets */; };
 		08541741297620930068FCB1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 08541740297620930068FCB1 /* Preview Assets.xcassets */; };
-		085417492978C28C0068FCB1 /* BookRide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 085417482978C28C0068FCB1 /* BookRide.swift */; };
 		0854174B2978C97D0068FCB1 /* Ride.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0854174A2978C97D0068FCB1 /* Ride.swift */; };
+		0854174D297A023C0068FCB1 /* GlobalFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0854174C297A023C0068FCB1 /* GlobalFunctions.swift */; };
+		0854175C297E14F40068FCB1 /* MapItemPicker in Frameworks */ = {isa = PBXBuildFile; productRef = 0854175B297E14F40068FCB1 /* MapItemPicker */; };
+		086C9D0029A6622C00344576 /* Overview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 086C9CFF29A6622C00344576 /* Overview.swift */; };
+		088E591B29EA01780055DBB0 /* Launchscreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 088E591A29EA01780055DBB0 /* Launchscreen.swift */; };
+		088E591D29EB00940055DBB0 /* CreatedBookingResponseData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 088E591C29EB00940055DBB0 /* CreatedBookingResponseData.swift */; };
+		088E591F29EB041B0055DBB0 /* SquareLocationResponseData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 088E591E29EB041B0055DBB0 /* SquareLocationResponseData.swift */; };
+		088E592129EB090E0055DBB0 /* LocationsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 088E592029EB090E0055DBB0 /* LocationsData.swift */; };
+		088E592329EB0AEF0055DBB0 /* CreatedLocationResponseData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 088E592229EB0AEF0055DBB0 /* CreatedLocationResponseData.swift */; };
+		08902E39299C57BF00DA89E2 /* DestinationSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08902E38299C57BF00DA89E2 /* DestinationSelector.swift */; };
+		0891049729CFC60A00D474B1 /* CreateAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0891049629CFC60A00D474B1 /* CreateAccount.swift */; };
+		0891049929CFC61500D474B1 /* SquareManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0891049829CFC61500D474B1 /* SquareManager.swift */; };
+		0891049C29D0A54800D474B1 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0891049B29D0A54800D474B1 /* User.swift */; };
+		0891049E29D0A8FF00D474B1 /* SquareError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0891049D29D0A8FF00D474B1 /* SquareError.swift */; };
+		089104A029D0DDD100D474B1 /* LoginTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0891049F29D0DDD100D474B1 /* LoginTest.swift */; };
+		089EAC7529AD83B9005DF94B /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 089EAC7429AD83B9005DF94B /* AlertToast */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0801DF6329E375BC00EE2A3E /* Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test.swift; sourceTree = "<group>"; };
+		08355DEE29A1A949000F434C /* StartingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartingScreen.swift; sourceTree = "<group>"; };
+		08355DF029A1B126000F434C /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		08541736297620920068FCB1 /* Comfort Rides Pro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Comfort Rides Pro.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		08541739297620920068FCB1 /* Comfort_Rides_ProApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comfort_Rides_ProApp.swift; sourceTree = "<group>"; };
 		0854173B297620920068FCB1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		0854173D297620930068FCB1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		08541740297620930068FCB1 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		085417472978C1010068FCB1 /* Comfort Rides Pro.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Comfort Rides Pro.entitlements"; sourceTree = "<group>"; };
-		085417482978C28C0068FCB1 /* BookRide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookRide.swift; sourceTree = "<group>"; };
 		0854174A2978C97D0068FCB1 /* Ride.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ride.swift; sourceTree = "<group>"; };
+		0854174C297A023C0068FCB1 /* GlobalFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalFunctions.swift; sourceTree = "<group>"; };
+		086C9CFF29A6622C00344576 /* Overview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overview.swift; sourceTree = "<group>"; };
+		088E591A29EA01780055DBB0 /* Launchscreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Launchscreen.swift; sourceTree = "<group>"; };
+		088E591C29EB00940055DBB0 /* CreatedBookingResponseData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatedBookingResponseData.swift; sourceTree = "<group>"; };
+		088E591E29EB041B0055DBB0 /* SquareLocationResponseData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquareLocationResponseData.swift; sourceTree = "<group>"; };
+		088E592029EB090E0055DBB0 /* LocationsData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsData.swift; sourceTree = "<group>"; };
+		088E592229EB0AEF0055DBB0 /* CreatedLocationResponseData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatedLocationResponseData.swift; sourceTree = "<group>"; };
+		08902E38299C57BF00DA89E2 /* DestinationSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationSelector.swift; sourceTree = "<group>"; };
+		0891049629CFC60A00D474B1 /* CreateAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAccount.swift; sourceTree = "<group>"; };
+		0891049829CFC61500D474B1 /* SquareManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquareManager.swift; sourceTree = "<group>"; };
+		0891049B29D0A54800D474B1 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		0891049D29D0A8FF00D474B1 /* SquareError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquareError.swift; sourceTree = "<group>"; };
+		0891049F29D0DDD100D474B1 /* LoginTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +63,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0854175C297E14F40068FCB1 /* MapItemPicker in Frameworks */,
+				089EAC7529AD83B9005DF94B /* AlertToast in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,8 +95,17 @@
 				0854173B297620920068FCB1 /* ContentView.swift */,
 				0854173D297620930068FCB1 /* Assets.xcassets */,
 				0854173F297620930068FCB1 /* Preview Content */,
-				085417482978C28C0068FCB1 /* BookRide.swift */,
+				0891049A29D0A53F00D474B1 /* Square */,
 				0854174A2978C97D0068FCB1 /* Ride.swift */,
+				0854174C297A023C0068FCB1 /* GlobalFunctions.swift */,
+				08355DEE29A1A949000F434C /* StartingScreen.swift */,
+				08902E38299C57BF00DA89E2 /* DestinationSelector.swift */,
+				086C9CFF29A6622C00344576 /* Overview.swift */,
+				0891049F29D0DDD100D474B1 /* LoginTest.swift */,
+				08355DF029A1B126000F434C /* Constants.swift */,
+				0891049629CFC60A00D474B1 /* CreateAccount.swift */,
+				0801DF6329E375BC00EE2A3E /* Test.swift */,
+				088E591A29EA01780055DBB0 /* Launchscreen.swift */,
 			);
 			path = "Comfort Rides Pro";
 			sourceTree = "<group>";
@@ -73,6 +116,20 @@
 				08541740297620930068FCB1 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		0891049A29D0A53F00D474B1 /* Square */ = {
+			isa = PBXGroup;
+			children = (
+				0891049829CFC61500D474B1 /* SquareManager.swift */,
+				0891049B29D0A54800D474B1 /* User.swift */,
+				0891049D29D0A8FF00D474B1 /* SquareError.swift */,
+				088E591C29EB00940055DBB0 /* CreatedBookingResponseData.swift */,
+				088E591E29EB041B0055DBB0 /* SquareLocationResponseData.swift */,
+				088E592029EB090E0055DBB0 /* LocationsData.swift */,
+				088E592229EB0AEF0055DBB0 /* CreatedLocationResponseData.swift */,
+			);
+			path = Square;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -91,6 +148,10 @@
 			dependencies = (
 			);
 			name = "Comfort Rides Pro";
+			packageProductDependencies = (
+				0854175B297E14F40068FCB1 /* MapItemPicker */,
+				089EAC7429AD83B9005DF94B /* AlertToast */,
+			);
 			productName = "Comfort Rides Pro";
 			productReference = 08541736297620920068FCB1 /* Comfort Rides Pro.app */;
 			productType = "com.apple.product-type.application";
@@ -119,6 +180,10 @@
 				Base,
 			);
 			mainGroup = 0854172D297620920068FCB1;
+			packageReferences = (
+				0854175A297E14F40068FCB1 /* XCRemoteSwiftPackageReference "swiftui-map-item-picker" */,
+				089EAC7329AD83B9005DF94B /* XCRemoteSwiftPackageReference "AlertToast" */,
+			);
 			productRefGroup = 08541737297620920068FCB1 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -145,10 +210,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				086C9D0029A6622C00344576 /* Overview.swift in Sources */,
 				0854173C297620920068FCB1 /* ContentView.swift in Sources */,
 				0854174B2978C97D0068FCB1 /* Ride.swift in Sources */,
+				0801DF6429E375BC00EE2A3E /* Test.swift in Sources */,
+				08902E39299C57BF00DA89E2 /* DestinationSelector.swift in Sources */,
+				0854174D297A023C0068FCB1 /* GlobalFunctions.swift in Sources */,
+				089104A029D0DDD100D474B1 /* LoginTest.swift in Sources */,
+				088E591F29EB041B0055DBB0 /* SquareLocationResponseData.swift in Sources */,
+				088E592129EB090E0055DBB0 /* LocationsData.swift in Sources */,
 				0854173A297620920068FCB1 /* Comfort_Rides_ProApp.swift in Sources */,
-				085417492978C28C0068FCB1 /* BookRide.swift in Sources */,
+				08355DEF29A1A949000F434C /* StartingScreen.swift in Sources */,
+				088E591B29EA01780055DBB0 /* Launchscreen.swift in Sources */,
+				088E591D29EB00940055DBB0 /* CreatedBookingResponseData.swift in Sources */,
+				0891049929CFC61500D474B1 /* SquareManager.swift in Sources */,
+				0891049E29D0A8FF00D474B1 /* SquareError.swift in Sources */,
+				088E592329EB0AEF0055DBB0 /* CreatedLocationResponseData.swift in Sources */,
+				08355DF129A1B126000F434C /* Constants.swift in Sources */,
+				0891049C29D0A54800D474B1 /* User.swift in Sources */,
+				0891049729CFC60A00D474B1 /* CreateAccount.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -281,11 +361,13 @@
 				DEVELOPMENT_TEAM = ZGVKCP72NR;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Private Rides";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -311,11 +393,13 @@
 				DEVELOPMENT_TEAM = ZGVKCP72NR;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Private Rides";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -351,6 +435,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0854175A297E14F40068FCB1 /* XCRemoteSwiftPackageReference "swiftui-map-item-picker" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/lorenzofiamingo/swiftui-map-item-picker";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+		089EAC7329AD83B9005DF94B /* XCRemoteSwiftPackageReference "AlertToast" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/elai950/AlertToast.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0854175B297E14F40068FCB1 /* MapItemPicker */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0854175A297E14F40068FCB1 /* XCRemoteSwiftPackageReference "swiftui-map-item-picker" */;
+			productName = MapItemPicker;
+		};
+		089EAC7429AD83B9005DF94B /* AlertToast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 089EAC7329AD83B9005DF94B /* XCRemoteSwiftPackageReference "AlertToast" */;
+			productName = AlertToast;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0854172E297620920068FCB1 /* Project object */;
 }
