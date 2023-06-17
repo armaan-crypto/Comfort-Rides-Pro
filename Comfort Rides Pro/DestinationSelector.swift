@@ -34,13 +34,14 @@ struct DestinationSelector: View {
                 LocationSelector(ride: $ride, placeholder: "Pickup Location", address: $pickupAddress, text: $pickupAddress, isShowing: $showing1, placemark: $pickUpPlacemark)
                 LocationSelector(ride: $ride, placeholder: "Destination", address: $whereToAddress, text: $whereToText, isShowing: $showing, placemark: $dropOffPlacemark)
                 VStack(spacing: 20) {
-//                    CarSelectorItem(carType: .crsedan, isSelected: $firstSelected)
-//                        .onTapGesture {
-//                            firstSelected = true
-//                            secondSelected = false
-//                            ride.carType = .crsedan
-//                            F.vibrate(.heavy)
-//                        }
+                    LeftText(text: "Select Ride", size: 26, weight: .bold)
+                    CarSelectorItem(carType: .crsedan, isSelected: $firstSelected)
+                        .onTapGesture {
+                            firstSelected = true
+                            secondSelected = false
+                            ride.carType = .crsedan
+                            F.vibrate(.heavy)
+                        }
                     CarSelectorItem(carType: .crluxury, isSelected: $secondSelected)
                         .onTapGesture {
                             firstSelected = false
@@ -127,11 +128,15 @@ struct CarSelectorItem: View {
                 LeftText(text: carType.title(), weight: .heavy)
                     .padding(EdgeInsets(top: 20, leading: 20, bottom: 0, trailing: 20))
                 VStack(spacing: 5) {
-                    ForEach(carType.description1(), id: \.self) { s in
-                        LeftText(text: "- " + s)
+                    ForEach(0..<carType.description1().count, id: \.self) { i in
+                        let s = carType.description1()[i]
+                        let img = carType.images()[i]
+                        HStack {
+                            Image(systemName: img)
+                                .foregroundColor(.white)
+                            LeftText(text: s, size: 13)
+                        }
                     }
-                    LeftText(text: "- Seats 1-" + "\(carType.seats())")
-                        .bold()
                 }
                 .padding(EdgeInsets(top: 1, leading: 20, bottom: 20, trailing: 20))
                 Spacer()
@@ -142,13 +147,18 @@ struct CarSelectorItem: View {
                 Spacer()
                 VStack {
                     Spacer()
-//                    Image(systemName: carType.imageName())
-//                        .padding()
-//                        .imageScale(.large)
-                    Image(uiImage: UIImage(named: carType.rawValue)!)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 50)
+                    VStack {
+                        Image(uiImage: UIImage(named: carType.rawValue)!)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 50)
+                            .padding(.top)
+                            .padding(.leading)
+                            .padding(.bottom)
+                        
+                    }
+//                    .background(.white)
+                    .cornerRadius(20)
                         .padding()
                 }
             }
@@ -197,7 +207,10 @@ struct LocationSelector: View {
     
     var body: some View {
         HStack(spacing: 10) {
-            BetterTextField(placeholder: placeholder, enteredText: $address, width: 250)
+            BetterTextField(placeholder: placeholder, enteredText: $address, width: 250) {
+                isShowing = true
+            }
+            
             Button {
                 isShowing = true
             } label: {
@@ -240,6 +253,7 @@ struct BetterTextField: View {
     @State var placeholder: String
     @Binding var enteredText: String
     @State var width: CGFloat
+    @State var onClick: (() -> Void)
     
     var body: some View {
         VStack {
@@ -250,6 +264,7 @@ struct BetterTextField: View {
                     Text(placeholder)
                         .foregroundColor(Color(uiColor: .systemGray4))
                 }
+                .onTapGesture(perform: onClick)
                 Spacer()
             }
 //            .frame(width: width)

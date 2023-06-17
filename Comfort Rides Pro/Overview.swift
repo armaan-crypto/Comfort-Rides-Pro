@@ -148,9 +148,11 @@ struct CarTypeOverviewSection: View {
                     .bold()
                     .font(.system(size: 24))
                 let t = carType.description1().joined(separator: ". ")
-                LeftText(text: t)
-                    .font(.system(size: 14))
-                    .foregroundColor(.gray)
+                ForEach(carType.description1(), id: \.self) { d in
+                    LeftText(text: "• " + d)
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                }
             }
             VStack {
                 HStack {
@@ -225,7 +227,7 @@ struct RideDetailsOverviewSection: View {
 }
 
 struct Overview_Previews: PreviewProvider {
-    @State static var r = Ride(time: Date(), pickUpLocation: "Home", dropOffLocation: "School", carType: .crsedan, price: 80)
+    @State static var r = Ride(time: Date(), pickUpLocation: "Home", dropOffLocation: "School", carType: .crluxury, price: 80)
     static var previews: some View {
         NavigationView {
             Overview(ride: $r)

@@ -30,15 +30,23 @@ struct Ride: Identifiable {
 
 enum CarType: String, Identifiable {
     var id: UUID { UUID() }
-    case crsedan = "CRSedan"
-    case crluxury = "CRLuxury"
+    case crsedan = "Premium Sedan"
+    case crluxury = "SUV Luxe"
     
     func title() -> String {
         switch self {
         case .crsedan:
-            return "CRSedan"
+            return "Premium Sedan"
         case .crluxury:
-            return "Luxe SUV"
+            return "SUV Luxe"
+        }
+    }
+    
+    init(serviceId: String) {
+        if serviceId == CarType.crluxury.serviceId() {
+            self = .crluxury
+        } else {
+            self = .crsedan
         }
     }
     
@@ -51,7 +59,7 @@ enum CarType: String, Identifiable {
         case .crsedan:
             return 4
         case .crluxury:
-            return 7
+            return 6
         }
     }
     
@@ -67,9 +75,18 @@ enum CarType: String, Identifiable {
     func description1() -> [String] {
         switch self {
         case .crsedan:
-            return ["Premium Sedan. Tesla Model Y or similar (EV)"]
+            return ["Only available in Columbus, OH", "Tesla Model Y or similar (EV)", "Seats 1-\(seats())", "Holds up to 4 luggages", "Free Cancellation up to 24 hrs before pickup time", "30 minutes of wait time included on every ride."]
         case .crluxury:
-            return ["Luxury SUV. Cadillac Escalade ESV or similar", "Drinks are provided and are all inclusive", "30 minutes of wait time included on every ride."]
+            return ["Only available in Las Vegas", "Luxury SUV. Cadillac Escalade ESV or similar", "Seats 1-\(seats())", "Holds up to 6 luggages", "Drinks are provided and are all inclusive", "Free Cancellation up to 24 hrs before pickup time", "30 minutes of wait time included on every ride."]
+        }
+    }
+    
+    func images() -> [String] {
+        switch self {
+        case .crsedan:
+            return ["building.fill", "car.fill", "person.fill", "bag.fill", "x.circle", "clock.fill"]
+        case .crluxury:
+            return ["building.fill", "car.fill", "person.fill", "bag.fill", "wineglass.fill", "x.circle", "clock.fill"]
         }
     }
     

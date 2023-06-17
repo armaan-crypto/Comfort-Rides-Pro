@@ -10,8 +10,15 @@ import SwiftUI
 struct Launchscreen: View {
     var body: some View {
         VStack {
-            CRLogo()
+            Spacer()
+            HStack {
+                Spacer()
+                CRLogo()
+                Spacer()
+            }
+            Spacer()
         }
+        .background(K.darkBlue)
     }
 }
 

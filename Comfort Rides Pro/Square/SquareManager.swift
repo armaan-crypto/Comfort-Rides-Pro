@@ -29,7 +29,7 @@ struct SquareManager {
 
         var request = URLRequest(url: URL(string: "https://connect.squareupsandbox.com/v2/locations")!,timeoutInterval: Double.infinity)
         request.addValue("2023-03-15", forHTTPHeaderField: "Square-Version")
-        request.addValue("Bearer EAAAEEcmYwB9IfDVQphfWOj8pGHyzLnZyYhed8MHrnlcpyBErRxXcJyAIcofZF6Y", forHTTPHeaderField: "Authorization")
+        request.addValue("Bearer \(K.key)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("__cf_bm=z6EGQwxlLOy4uYAetF5hV8zp0ig3PxlOYiiYanQodyo-1681576000-0-AcWsWlcu7jEcmrN7Li+31QhmenSBdztsmexfv2e/LjQ7CbUnbq2mHImMTqSSFF1RoJu90f7Q00qB+ohEgBdmzwo=", forHTTPHeaderField: "Cookie")
 
@@ -44,7 +44,7 @@ struct SquareManager {
             
             var request = URLRequest(url: URL(string: "https://connect.squareupsandbox.com/v2/locations")!,timeoutInterval: Double.infinity)
             request.addValue("2023-03-15", forHTTPHeaderField: "Square-Version")
-            request.addValue("Bearer EAAAEEcmYwB9IfDVQphfWOj8pGHyzLnZyYhed8MHrnlcpyBErRxXcJyAIcofZF6Y", forHTTPHeaderField: "Authorization")
+            request.addValue("Bearer \(K.key)", forHTTPHeaderField: "Authorization")
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
             request.addValue("__cf_bm=z6EGQwxlLOy4uYAetF5hV8zp0ig3PxlOYiiYanQodyo-1681576000-0-AcWsWlcu7jEcmrN7Li+31QhmenSBdztsmexfv2e/LjQ7CbUnbq2mHImMTqSSFF1RoJu90f7Q00qB+ohEgBdmzwo=", forHTTPHeaderField: "Cookie")
 
@@ -92,13 +92,14 @@ struct SquareManager {
 
         var request = URLRequest(url: URL(string: "https://connect.squareupsandbox.com/v2/bookings")!,timeoutInterval: Double.infinity)
         request.addValue("2023-03-15", forHTTPHeaderField: "Square-Version")
-        request.addValue("Bearer EAAAEEcmYwB9IfDVQphfWOj8pGHyzLnZyYhed8MHrnlcpyBErRxXcJyAIcofZF6Y", forHTTPHeaderField: "Authorization")
+        request.addValue("Bearer \(K.key)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpMethod = "POST"
         request.httpBody = postData
 
         let (data, response) = try await URLSession.shared.data(for: request)
         let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 400
+        print(String(data: data, encoding: .utf8))
         guard statusCode >= 200 && statusCode <= 202 else { throw RideError.bookingError }
         let res = try JSONDecoder().decode(CreatedBookingResponseData.self, from: data)
         guard res.booking.status == "ACCEPTED" else { throw RideError.bookingError }
@@ -108,7 +109,7 @@ struct SquareManager {
         guard let userID = UserDefaults.standard.string(forKey: U.userId) else { throw SquareError.sessionExpired }
         var request = URLRequest(url: URL(string: "https://connect.squareupsandbox.com/v2/customers/\(userID)")!,timeoutInterval: Double.infinity)
         request.addValue("2023-03-15", forHTTPHeaderField: "Square-Version")
-        request.addValue("Bearer EAAAEEcmYwB9IfDVQphfWOj8pGHyzLnZyYhed8MHrnlcpyBErRxXcJyAIcofZF6Y", forHTTPHeaderField: "Authorization")
+        request.addValue("Bearer \(K.key)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
         request.httpMethod = "GET"
@@ -124,7 +125,7 @@ struct SquareManager {
 
         var request = URLRequest(url: URL(string: "https://connect.squareupsandbox.com/v2/customers")!,timeoutInterval: Double.infinity)
         request.addValue("2023-03-15", forHTTPHeaderField: "Square-Version")
-        request.addValue("Bearer EAAAEEcmYwB9IfDVQphfWOj8pGHyzLnZyYhed8MHrnlcpyBErRxXcJyAIcofZF6Y", forHTTPHeaderField: "Authorization")
+        request.addValue("Bearer \(K.key)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
         request.httpMethod = "POST"

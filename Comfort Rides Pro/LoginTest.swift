@@ -19,22 +19,24 @@ struct LoginTest: View {
     @State var error = ""
     
     var body: some View {
-        VStack(spacing: 40) {
-            Spacer()
-            CRLogo()
-            Text("Tell us a bit about yourself")
-                .foregroundColor(K.darkBlue)
-                .font(.system(size: 28, weight: .bold))
-            VStack(spacing: 20) {
-                LoginTextField(placeholder: "Phone number", text: $phone, keyboardType: .phonePad)
-                LoginTextField(placeholder: "First name", text: $firstname, contentType: .givenName)
-                LoginTextField(placeholder: "Last name", text: $lastname, contentType: .familyName)
+        ScrollView {
+            VStack(spacing: 40) {
+                Spacer()
+                CRLogo()
+                Text("Tell us a bit about yourself")
+                    .foregroundColor(K.darkBlue)
+                    .font(.system(size: 28, weight: .bold))
+                VStack(spacing: 20) {
+                    LoginTextField(placeholder: "Phone number", text: $phone, keyboardType: .phonePad)
+                    LoginTextField(placeholder: "First name", text: $firstname, contentType: .givenName)
+                    LoginTextField(placeholder: "Last name", text: $lastname, contentType: .familyName)
+                }
+                .padding(.top, 5)
+                .padding(.bottom, 20)
+                LoginButton(loading: $loading, isError: $isError, error: $error, createUser: createUser)
+                NavigationLink(destination: HomescreenFromLogin(), isActive: $advance) { EmptyView() }
+                Spacer()
             }
-            .padding(.top, 5)
-            .padding(.bottom, 20)
-            LoginButton(loading: $loading, isError: $isError, error: $error, createUser: createUser)
-            NavigationLink(destination: HomescreenFromLogin(), isActive: $advance) { EmptyView() }
-            Spacer()
         }
         .preferredColorScheme(.light)
         .padding()
@@ -49,7 +51,7 @@ struct LoginTest: View {
 
         var request = URLRequest(url: URL(string: "https://connect.squareupsandbox.com/v2/customers")!,timeoutInterval: Double.infinity)
         request.addValue("2023-03-15", forHTTPHeaderField: "Square-Version")
-        request.addValue("Bearer EAAAEEcmYwB9IfDVQphfWOj8pGHyzLnZyYhed8MHrnlcpyBErRxXcJyAIcofZF6Y", forHTTPHeaderField: "Authorization")
+        request.addValue("Bearer \(K.key)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("__cf_bm=GjSThZ7LuFf8yXkbLOj9NmCEU1OUaV2884SjYRTwOEk-1680999689-0-Af0bdPPG6m3f7wCD4tc+ioNAIIylAjtUqwbDQ3vuO4uN41BnYGGUxKnOdD40YntAguhF9Q39ZB9I+7GNoi2xpm0=", forHTTPHeaderField: "Cookie")
 
