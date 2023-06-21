@@ -18,7 +18,7 @@ struct ContentView: View {
                 if isValidUser {
                     StartingScreen()
                 } else {
-                    LoginTest()
+                    Login()
                 }
             }.accentColor(K.darkBlue)
                 .preferredColorScheme(.light)
@@ -38,7 +38,6 @@ struct ContentView: View {
                     loaded = true
                 }
             } catch {
-                print(error)
                 withAnimation {
                     loaded = true
                 }

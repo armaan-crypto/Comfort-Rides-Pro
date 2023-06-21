@@ -67,7 +67,6 @@ struct Overview: View {
             NavigationLink(destination: StartingScreen().navigationBarBackButtonHidden(), isActive: $advance) { EmptyView() }
         }
         .onAppear(perform: {
-            // TODO: - Default the date in case of no selection
             setDefaultTime()
         })
         .navigationTitle("Ride Overview")

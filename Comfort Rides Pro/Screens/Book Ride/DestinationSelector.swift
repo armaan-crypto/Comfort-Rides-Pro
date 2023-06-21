@@ -51,8 +51,7 @@ struct DestinationSelector: View {
                         }
                 }
                 Button {
-//                    Overview(ride: $ride)
-                    createLocation()
+                    advance = true
                 } label: {
                     Text("Next")
                         .bold()
@@ -87,24 +86,6 @@ struct DestinationSelector: View {
             AlertToast(type: .loading, title: "")
         }
         .toast(isPresenting: $isError) { AlertToast(type: .regular, title: "Error while finding your location", subTitle: error) }
-    }
-    
-    func createLocation() {
-//        Task {
-//            do {
-//                isUploading = true
-//                guard let pickUpPlacemark = pickUpPlacemark else { isUploading = false; return }
-//                let id = try await SquareManager().createLocation(with: pickUpPlacemark, string: pickupAddress)
-//                ride.locationId = id
-//                isUploading = false
-//                advance = true
-//            } catch {
-//                isUploading = false
-//                self.error = error.localizedDescription
-//                isError = true
-//            }
-//        }
-        advance = true
     }
     
     func isDisabled() -> Bool {

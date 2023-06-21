@@ -8,11 +8,12 @@
 import SwiftUI
 import AlertToast
 
-struct LoginTest: View {
+struct Login: View {
     
     @State var firstname = ""
     @State var lastname = ""
     @State var phone = ""
+    @State var email = ""
     @State var advance = false
     @State var loading = false
     @State var isError = false
@@ -28,6 +29,7 @@ struct LoginTest: View {
                     .font(.system(size: 28, weight: .bold))
                 VStack(spacing: 20) {
                     LoginTextField(placeholder: "Phone number", text: $phone, keyboardType: .phonePad)
+                    LoginTextField(placeholder: "Email", text: $email, keyboardType: .emailAddress)
                     LoginTextField(placeholder: "First name", text: $firstname, contentType: .givenName)
                     LoginTextField(placeholder: "Last name", text: $lastname, contentType: .familyName)
                 }
@@ -45,11 +47,15 @@ struct LoginTest: View {
     }
     
     func createUser() async throws {
+        if email == "" || lastname == "" || firstname == "" || phone == "" {
+            self.error = "Fill out all the fields"
+            self.isError = true
+        }
         // Call the API
-        let parameters = "{\n    \"family_name\": \"\(lastname)\",\n    \"given_name\": \"\(firstname)\",\n    \"phone_number\": \"\(phone)\"\n  }"
+        let parameters = "{\n    \"email_address\": \"\(email)\",\n    \"family_name\": \"\(lastname)\",\n    \"given_name\": \"\(firstname)\",\n    \"phone_number\": \"\(phone)\"\n  }"
         let postData = parameters.data(using: .utf8)
 
-        var request = URLRequest(url: URL(string: "https://connect.squareupsandbox.com/v2/customers")!,timeoutInterval: Double.infinity)
+        var request = URLRequest(url: URL(string: "https://connect.\(K.keyword).com/v2/customers")!,timeoutInterval: Double.infinity)
         request.addValue("2023-03-15", forHTTPHeaderField: "Square-Version")
         request.addValue("Bearer \(K.key)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -61,6 +67,7 @@ struct LoginTest: View {
         guard let decodedJson = try? JSONDecoder().decode(SquareUser.self, from: data) else {
             let d = try JSONDecoder().decode(SquareErrorJSON.self, from: data)
             if d.errors.count > 0 {
+                print(d)
                 self.error = d.errors[0].showedText
                 isError = true
             }
@@ -85,7 +92,7 @@ struct HomescreenFromLogin: View {
 
 struct LoginTest_Previews: PreviewProvider {
     static var previews: some View {
-        LoginTest()
+        Login()
     }
 }
 

@@ -66,18 +66,18 @@ enum CarType: String, Identifiable {
     func serviceId() -> String {
         switch self {
         case .crsedan:
-            return "AVF2ZG45W5MGJMPROZ3QKHFI"
+            return "GZ2FW5MAN3WMPT7NG2W376QD"
         case .crluxury:
-            return "K227EI5PZI4JLTCXISPOGFVD"
+            return "ZZAXSYXCDH6NK62EMBMQOHKO"
         }
     }
     
     func description1() -> [String] {
         switch self {
         case .crsedan:
-            return ["Only available in Columbus, OH", "Tesla Model Y or similar (EV)", "Seats 1-\(seats())", "Holds up to 4 luggages", "Free Cancellation up to 24 hrs before pickup time", "30 minutes of wait time included on every ride."]
+            return ["Only available in Columbus, OH", "Tesla Model Y or similar (EV)", "Holds 4 passengers • 4 luggage", "Free Cancellation up to 24 hrs before pickup time", "30 minutes of wait time included on every ride."]
         case .crluxury:
-            return ["Only available in Las Vegas", "Luxury SUV. Cadillac Escalade ESV or similar", "Seats 1-\(seats())", "Holds up to 6 luggages", "Drinks are provided and are all inclusive", "Free Cancellation up to 24 hrs before pickup time", "30 minutes of wait time included on every ride."]
+            return ["Only available in Las Vegas", "Cadillac Escalade ESV or similar", "Holds 6 passengers • 6 luggage", "Drinks are provided and are all inclusive", "Free Cancellation up to 24 hrs before pickup time", "30 minutes of wait time included on every ride."]
         }
     }
     
@@ -93,7 +93,7 @@ enum CarType: String, Identifiable {
     func price() -> String {
         switch self {
         case .crsedan:
-            return "$50"
+            return "$60"
         case .crluxury:
             return "$85"
         }

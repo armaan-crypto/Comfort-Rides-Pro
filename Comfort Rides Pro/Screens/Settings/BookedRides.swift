@@ -10,6 +10,8 @@ import SwiftUI
 struct BookedRides: View {
     
     @ObservedObject var ridesManager = RidesManager()
+    @State var errorMessage: String? = nil
+    @State var error: Error? = nil
     
     var body: some View {
         if ridesManager.loaded {
@@ -17,12 +19,22 @@ struct BookedRides: View {
                 List(ridesManager.bookedRides) { ride in
                     BookedRidesRow(ride: ride)
                         .navigationTitle("Upcoming Rides")
+                        .overlay(alignment: .top) {
+                            if errorMessage != nil {
+                                ErrorView(error: $error, errorMessage: $errorMessage)
+                            }
+                        }
                 }
             } else {
                 Text("No rides have been booked yet")
-                    .foregroundColor(Color(uiColor: UIColor.systemGray6))
+                    .foregroundColor(Color(uiColor: UIColor.systemGray3))
                     .bold()
                     .navigationTitle("Upcoming Rides")
+                    .overlay(alignment: .top) {
+                        if errorMessage != nil {
+                            ErrorView(error: $error, errorMessage: $errorMessage)
+                        }
+                    }
             }
         } else {
             ProgressView()
@@ -30,11 +42,13 @@ struct BookedRides: View {
                 .onAppear {
                     Task {
                         do {
-                            try await ridesManager.retrieve({ str in
-                                print("ERROR: " + str)
+                            try await ridesManager.retrieve({ e in
+                                self.errorMessage = e
+                                ridesManager.loaded = true
                             })
                         } catch {
-                            print(error)
+                            self.error = error
+                            ridesManager.loaded = true
                         }
                     }
                 }
@@ -95,9 +109,9 @@ class RidesManager: ObservableObject {
     }
     
     func retrieve(_ hadError: ((String) -> Void)) async throws {
-        var request = URLRequest(url: URL(string: "https://connect.squareupsandbox.com/v2/bookings")!,timeoutInterval: Double.infinity)
+        var request = URLRequest(url: URL(string: "https://connect.\(K.keyword).com/v2/bookings")!,timeoutInterval: Double.infinity)
         request.addValue("2023-06-08", forHTTPHeaderField: "Square-Version")
-        request.addValue("Bearer EAAAEDNhYZgNTP3M7GcxEBMdf9PD6zNFBhbvvjnYri6TwvUZ1g3fQzJvWW2T7nKf", forHTTPHeaderField: "Authorization")
+        request.addValue("Bearer \(K.key)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
         request.httpMethod = "GET"
@@ -124,5 +138,50 @@ class RidesManager: ObservableObject {
         let carType = CarType(serviceId: booking.appointmentSegments[0].serviceVariationID)
         // TODO: If booking.start is nil show error
         return Ride(time: booking.start!, pickUpLocation: pickUp, dropOffLocation: dropOff, carType: carType, price: Int(String(carType.price().split(separator: "$")[0])) ?? 0, locationId: nil)
+    }
+}
+
+struct ErrorView: View {
+    
+    @Binding var error: Error?
+    @Binding var errorMessage: String?
+
+    var body: some View {
+        if let error = error {
+            VStack {
+                Text(error.localizedDescription)
+                    .bold()
+                Spacer()
+                    .frame(height: 30)
+                HStack {
+                    Button("Dismiss") {
+                        self.error = nil
+                    }
+                    .fontWeight(.bold)
+                }
+            }
+            .padding()
+            .background(Color.red)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+        }
+        if let errorMessage = errorMessage {
+            VStack {
+                Text(errorMessage)
+                    .bold()
+                Spacer()
+                    .frame(height: 30)
+                HStack {
+                    Button("Dismiss") {
+                        self.errorMessage = nil
+                    }
+                    .fontWeight(.bold)
+                }
+            }
+            .padding()
+            .background(Color.red)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+        }
     }
 }

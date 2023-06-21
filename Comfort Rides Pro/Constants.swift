@@ -10,7 +10,11 @@ import SwiftUI
 
 struct K {
     static let darkBlue = Color(uiColor: UIColor(named: "black")!)
-    static let key = "EAAAEDNhYZgNTP3M7GcxEBMdf9PD6zNFBhbvvjnYri6TwvUZ1g3fQzJvWW2T7nKf"
+    static let sandboxKey = "EAAAEDNhYZgNTP3M7GcxEBMdf9PD6zNFBhbvvjnYri6TwvUZ1g3fQzJvWW2T7nKf"
+    static let key = "EAAAFG3eWy7mwdUzcFAsYH7WeT1zSy_V7_KLyOEo4S2YcBwZCSCATdF9LOaeOvvS"
+    static let keyword = "squareup"
+    static let teamMemberId = "TMjd9YcIJgpKsgG0"
+    static let sandboxMemberId = "TMnxCtcwd8BjSXZ7"
 }
 
 struct F {
