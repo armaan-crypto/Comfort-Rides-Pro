@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "CHINA_UNIONPAY.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
