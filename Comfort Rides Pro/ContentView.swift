@@ -6,33 +6,48 @@
 //
 
 import SwiftUI
+import SquareInAppPaymentsSDK
 
 struct ContentView: View {
     
     @State var loaded = false
     @State var isValidUser = false
+    @State var shouldShowScreen = false
     
     var body: some View {
-        if loaded {
+        if shouldShowScreen {
             NavigationView {
-                if isValidUser {
-                    StartingScreen()
-                } else {
-                    Login()
-                }
-            }.accentColor(K.darkBlue)
-                .preferredColorScheme(.light)
+//                OtpFormFieldView()
+//                ReceiptView()
+            }
         } else {
-            Launchscreen()
-                .preferredColorScheme(.light)
-                .onAppear(perform: viewDidLoad)
+            if loaded {
+                NavigationView {
+                    if isValidUser {
+                        StartingScreen()
+                    } else {
+                        Login()
+                    }
+                }.accentColor(K.darkBlue)
+                    .preferredColorScheme(.light)
+            } else {
+                Launchscreen()
+                    .preferredColorScheme(.light)
+                    .onAppear(perform: viewDidLoad)
+            }
         }
     }
     
+    func sqInit() {
+        SQIPInAppPaymentsSDK.squareApplicationID = K.payment.square.APPLICATION_ID
+    }
+    
     func viewDidLoad() -> Void {
+        sqInit()
         Task {
             do {
-                let _ = try await SquareManager().retrieveUser()
+                let customer = try await SquareManager().retrieveUser()
+                V.cards = customer.cards ?? []
                 isValidUser = true
                 withAnimation {
                     loaded = true

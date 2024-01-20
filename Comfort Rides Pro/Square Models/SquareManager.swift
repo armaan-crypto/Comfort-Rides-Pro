@@ -42,14 +42,13 @@ struct SquareManager {
         let sid = c.serviceId()
         
         // Length
-        var minutes = ""
-        minutes = "60"
+        let minutes = String(ride.layover * 60)
         
         try await bookRideAPI(with: ride, date: dateStr, uid: userId, minutes: minutes, locationId: p, dropOff: d, pickUp: p, serviceId: sid)
     }
     
     fileprivate func bookRideAPI(with ride: Ride, date: String, uid: String, minutes: String, locationId: String, dropOff: String, pickUp: String, serviceId: String) async throws {
-        let parameters = "{\n    \"booking\": {\n      \"appointment_segments\": [\n        {\n          \"duration_minutes\": \(minutes),\n          \"service_variation_id\": \"\(serviceId)\",\n          \"team_member_id\": \"\(K.teamMemberId)\",\n          \"service_variation_version\": 1\n        }\n      ],\n      \"location_id\": \"L9DGVF8VYD6FW\",\n      \"location_type\": \"CUSTOMER_LOCATION\",\n      \"start_at\": \"\(date)\",\n      \"customer_note\": \"Booked from the Private Mobile app. Pickup location: \(pickUp). Drop off location: \(dropOff)\",\n      \"customer_id\": \"\(uid)\"\n    }\n  }"
+        let parameters = "{\n    \"booking\": {\n      \"appointment_segments\": [\n        {\n          \"duration_minutes\": \(minutes),\n          \"service_variation_id\": \"\(serviceId)\",\n          \"team_member_id\": \"\(K.teamMemberId)\",\n          \"service_variation_version\": 1\n        }\n      ],\n      \"location_id\": \"L9DGVF8VYD6FW\",\n      \"location_type\": \"CUSTOMER_LOCATION\",\n      \"start_at\": \"\(date)\",\n      \"customer_note\": \"Booked from the Private Mobile app. Pickup location: \(pickUp). Drop off location: \(dropOff). \(ride.note)\",\n      \"customer_id\": \"\(uid)\"\n    }\n  }"
         let postData = parameters.data(using: .utf8)
 
         var request = URLRequest(url: URL(string: "https://connect.\(K.keyword).com/v2/bookings")!,timeoutInterval: Double.infinity)
@@ -61,17 +60,25 @@ struct SquareManager {
 
         let (data, response) = try await URLSession.shared.data(for: request)
         let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 400
-        print(String(data: data, encoding: .utf8))
         guard statusCode >= 200 && statusCode <= 202 else { throw RideError.bookingError }
         let res = try JSONDecoder().decode(CreatedBookingResponseData.self, from: data)
         guard res.booking.status == "ACCEPTED" else { throw RideError.bookingError }
+        // Notify Email
+        SendEmail().send(with: ride, and: res)
     }
     
-    func retrieveUser() async throws -> Customer {
-        guard let userID = UserDefaults.standard.string(forKey: U.userId) else { throw SquareError.sessionExpired }
-        var request = URLRequest(url: URL(string: "https://connect.\(K.keyword).com/v2/customers/\(userID)")!,timeoutInterval: Double.infinity)
-        request.addValue("2023-03-15", forHTTPHeaderField: "Square-Version")
-        request.addValue("Bearer \(K.key)", forHTTPHeaderField: "Authorization")
+    func retrieveUser(userID user: String? = nil, key: String = K.key, sandbox: Bool = false) async throws -> Customer {
+        var userID = ""
+        if let user = user { userID = user }
+        else {
+            if let u = UserDefaults.standard.string(forKey: U.userId) {
+                userID = u
+            } else { throw SquareError.sessionExpired }
+        }
+        let server = K.keyword + (sandbox ? "sandbox" : "")
+        var request = URLRequest(url: URL(string: "https://connect.\(server).com/v2/customers/\(userID)")!,timeoutInterval: Double.infinity)
+        request.addValue("2023-11-15", forHTTPHeaderField: "Square-Version")
+        request.addValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
         request.httpMethod = "GET"
@@ -99,8 +106,4 @@ struct SquareManager {
         return user.customer
     }
     
-}
-
-struct U {
-    static let userId = "square_user_id"
 }

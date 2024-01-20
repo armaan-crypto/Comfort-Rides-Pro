@@ -59,15 +59,44 @@ struct DatePickerDemo: View {
     @State var minterval: Int = 30
 
     var body: some View {
-        VStack {
-            
-            MyDatePicker(selection: $wakeUp, minuteInterval: minterval, displayedComponents: [.date, .hourAndMinute], onChange: changed)
-            Text("\(wakeUp)")
+        ScrollView {
+            VStack {
+                VegasImage()
+                Spacer()
+                    .frame(height: 20)
+                Spacer()
+                VStack(spacing: 0) {
+                    HStack {
+                        Text("Choose your date and time")
+                            .bold()
+                            .foregroundColor(K.darkBlue)
+                        Spacer()
+                    }
+                    MyDatePicker(selection: $wakeUp, minuteInterval: minterval, displayedComponents: [.date, .hourAndMinute], onChange: changed)
+                        .border(.black)
+//                        .padding()
+                        .datePickerStyle(.graphical)
+                        .tint(K.darkBlue)
+//                        .labelsHidden()
+                    
+                }
+            }
         }
     }
     
     func changed() -> Void {
-        print("hello")
+//        print("hello")
+    }
+}
+
+struct VegasImage: View {
+    var body: some View {
+        ZStack {
+            Image("vegas")
+                .resizable()
+                .scaledToFill()
+                .shadow(radius: 10)
+        }
     }
 }
 

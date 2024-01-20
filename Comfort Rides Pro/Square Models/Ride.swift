@@ -18,11 +18,15 @@ struct Ride: Identifiable {
     var carType: CarType?
     var price: Int = 55
     var locationId: String?
+    var layover: Int = 1
+    var hasLayover: Bool = false
+    var note: String = ""
     
     var formattedDate: String {
         let relativeDateFormatter = DateFormatter()
         relativeDateFormatter.timeStyle = .short
         relativeDateFormatter.dateStyle = .medium
+        relativeDateFormatter.timeZone = TimeZone(abbreviation: "PST")
         relativeDateFormatter.doesRelativeDateFormatting = true
         return relativeDateFormatter.string(from: time!)
     }
@@ -30,15 +34,15 @@ struct Ride: Identifiable {
 
 enum CarType: String, Identifiable {
     var id: UUID { UUID() }
-    case crsedan = "Premium Sedan"
-    case crluxury = "SUV Luxe"
+    case crsedan = "Private Sedan"
+    case crluxury = "Private SUV"
     
     func title() -> String {
         switch self {
         case .crsedan:
-            return "Premium Sedan"
+            return "Private Sedan"
         case .crluxury:
-            return "SUV Luxe"
+            return "Private SUV"
         }
     }
     
@@ -66,7 +70,8 @@ enum CarType: String, Identifiable {
     func serviceId() -> String {
         switch self {
         case .crsedan:
-            return "GZ2FW5MAN3WMPT7NG2W376QD"
+//            return "GZ2FW5MAN3WMPT7NG2W376QD"
+            return "SASQNSLOU5GC4HLQ5S7IKB6G"
         case .crluxury:
             return "ZZAXSYXCDH6NK62EMBMQOHKO"
         }
@@ -75,47 +80,93 @@ enum CarType: String, Identifiable {
     func description1() -> [String] {
         switch self {
         case .crsedan:
-            return ["Only available in Columbus, OH", "Tesla Model Y or similar (EV)", "Holds 4 passengers • 4 luggage", "Free Cancellation up to 24 hrs before pickup time", "30 minutes of wait time included on every ride."]
+            return ["Tesla Model Y or similar (EV)", "Holds 4 passengers • 4 luggage", "Free Cancellation up to 24 hrs before pickup time", "30 minutes of wait time included on every ride."]
         case .crluxury:
-            return ["Only available in Las Vegas", "Cadillac Escalade ESV or similar", "Holds 6 passengers • 6 luggage", "Drinks are provided and are all inclusive", "Free Cancellation up to 24 hrs before pickup time", "30 minutes of wait time included on every ride."]
+            return ["Cadillac Escalade ESV or similar", "Holds 6 passengers • 6 luggage", "Drinks are provided and are all inclusive", "Free Cancellation up to 24 hrs before pickup time", "30 minutes of wait time included on every ride."]
         }
     }
     
     func images() -> [String] {
         switch self {
         case .crsedan:
-            return ["building.fill", "car.fill", "person.fill", "bag.fill", "x.circle", "clock.fill"]
+            return ["car.fill", "person.fill", "x.circle", "clock.fill"]
         case .crluxury:
-            return ["building.fill", "car.fill", "person.fill", "bag.fill", "wineglass.fill", "x.circle", "clock.fill"]
+            return ["car.fill", "person.fill", "wineglass.fill", "x.circle", "clock.fill"]
         }
     }
     
-    func price() -> String {
+    fileprivate func sellerReduction(_ layover: Int) -> Int {
+        // r = price - (price * 0.029 + 30)
+        let price = totalPrice(layover)
+        let scale = Double(price) * 0.029
+        return price - (Int(scale) + 30)
+    }
+    
+    func fees(_ layover: Int) -> Int {
+        return totalPrice(layover) - servicePrice(layover)
+    }
+    
+    func feesText(_ layover: Int) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        formatter.locale = Locale(identifier: "en_US")
+        return formatter.string(from: fees(layover) / 100 as NSNumber)!
+    }
+    
+    func totalPrice(_ layover: Int) -> Int {
+        let price = servicePrice(layover)
+        let a = price + 30
+        return Int(Double(a) / 0.971)
+    }
+    
+    func totalPriceText(_ layover: Int) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        formatter.locale = Locale(identifier: "en_US")
+        return formatter.string(from: totalPrice(layover) / 100 as NSNumber)!
+    }
+    
+    func servicePrice(_ layover: Int) -> Int {
         switch self {
         case .crsedan:
-            return "$60"
+            if layover == 1 {
+                return 100 * 60
+            } else {
+                return 75 * layover * 100
+            }
         case .crluxury:
-            return "$85"
+            if layover == 1 {
+                return 100 * 0
+            } else {
+                return 150 * layover * 100
+            }
+        }
+    }
+    
+    func servicePriceText(_ layover: Int) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        formatter.locale = Locale(identifier: "en_US")
+        return formatter.string(from: servicePrice(layover) / 100 as NSNumber)!
+    }
+    
+    func price(_ layover: Int) -> String {
+        switch self {
+        case .crsedan:
+            return "$\(60 * layover)"
+        case .crluxury:
+            return "$\(0 * layover)"
         }
     }
     
     func primaryColor() -> Color {
-//        switch self {
-//        case .crsedan:
-//            return Color(uiColor: .systemGray4)
-//        case .crluxury:
-//            return K.darkBlue
-//        }
         return Color(uiColor: .systemGray4)
     }
     
     func secondaryColor() -> Color {
-//        switch self {
-//        case .crsedan:
-//            return K.darkBlue
-//        case .crluxury:
-//            return .white
-//        }
         return K.darkBlue
     }
     

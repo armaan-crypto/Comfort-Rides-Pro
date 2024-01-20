@@ -13,7 +13,7 @@ struct Launchscreen: View {
             Spacer()
             HStack {
                 Spacer()
-                CRLogo()
+                CRLogo(isSmall: true)
                 Spacer()
             }
             Spacer()

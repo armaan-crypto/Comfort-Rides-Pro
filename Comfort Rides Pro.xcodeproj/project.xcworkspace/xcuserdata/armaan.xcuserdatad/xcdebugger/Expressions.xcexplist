@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "SquarePayment.pay(with:):Payments.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "(Foundation.Data)data">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "Overview.setDefaultTime():Overview.swift">
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

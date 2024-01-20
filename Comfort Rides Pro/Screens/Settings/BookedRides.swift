@@ -48,6 +48,7 @@ struct BookedRides: View {
                             })
                         } catch {
                             self.error = error
+                            print(error)
                             ridesManager.loaded = true
                         }
                     }
@@ -123,9 +124,13 @@ class RidesManager: ObservableObject {
         }
         for r in rideResponse.bookings {
             if r.customerID == UserDefaults.standard.string(forKey: U.userId) ?? "" {
-                DispatchQueue.main.async {
-                    withAnimation {
-                        self.bookedRides.append(self.getRide(from: r))
+                if r.status.contains("ACCEPTED") {
+                    if let s = r.start, Date.now.timeIntervalSince1970 < s.timeIntervalSince1970 {
+                        DispatchQueue.main.async {
+                            withAnimation {
+                                self.bookedRides.append(self.getRide(from: r))
+                            }
+                        }
                     }
                 }
             }
@@ -133,11 +138,15 @@ class RidesManager: ObservableObject {
     }
     
     func getRide(from booking: BookingResponseData) -> Ride {
-        let pickUp = String(String(booking.customerNote.split(separator: "Pickup location: ")[1]).split(separator: ". Drop off location")[0])
-        let dropOff = String(booking.customerNote.split(separator: "Drop off location: ")[1])
+        var pickUp = "Booked from website"
+        var dropOff = ""
+        if let note = booking.customerNote {
+            pickUp = String(String(note.split(separator: "Pickup location: ")[1]).split(separator: ". Drop off location")[0])
+            dropOff = String(note.split(separator: "Drop off location: ")[1])
+        }
         let carType = CarType(serviceId: booking.appointmentSegments[0].serviceVariationID)
         // TODO: If booking.start is nil show error
-        return Ride(time: booking.start!, pickUpLocation: pickUp, dropOffLocation: dropOff, carType: carType, price: Int(String(carType.price().split(separator: "$")[0])) ?? 0, locationId: nil)
+        return Ride(time: booking.start!, pickUpLocation: pickUp, dropOffLocation: dropOff, carType: carType, price: Int(String(carType.price(booking.appointmentSegments[0].durationMinutes / 60).split(separator: "$")[0])) ?? 0, locationId: nil)
     }
 }
 

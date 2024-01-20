@@ -27,6 +27,7 @@ struct DestinationSelector: View {
     @State var isUploading = false
     @State var isError = false
     @State var error = ""
+    @State var layover = 1
     
     var body: some View {
         ScrollView {
@@ -35,13 +36,13 @@ struct DestinationSelector: View {
                 LocationSelector(ride: $ride, placeholder: "Destination", address: $whereToAddress, text: $whereToText, isShowing: $showing, placemark: $dropOffPlacemark)
                 VStack(spacing: 20) {
                     LeftText(text: "Select Ride", size: 26, weight: .bold)
-                    CarSelectorItem(carType: .crsedan, isSelected: $firstSelected)
-                        .onTapGesture {
-                            firstSelected = true
-                            secondSelected = false
-                            ride.carType = .crsedan
-                            F.vibrate(.heavy)
-                        }
+//                    CarSelectorItem(carType: .crsedan, isSelected: $firstSelected)
+//                        .onTapGesture {
+//                            firstSelected = true
+//                            secondSelected = false
+//                            ride.carType = .crsedan
+//                            F.vibrate(.heavy)
+//                        }
                     CarSelectorItem(carType: .crluxury, isSelected: $secondSelected)
                         .onTapGesture {
                             firstSelected = false
@@ -50,7 +51,19 @@ struct DestinationSelector: View {
                             F.vibrate(.heavy)
                         }
                 }
+                Divider()
+                VStack(spacing: 10) {
+                    LeftText(text: "Hourly Service", size: 26, weight: .bold)
+                    HourlyServiceView(selected: $layover)
+                }
                 Button {
+                    ride.layover = layover
+                    ride.hasLayover = false
+                    ride.note = ""
+                    if layover > 1 {
+                        ride.hasLayover = true
+                        ride.note = "Layover time of \(layover) hours. "
+                    }
                     advance = true
                 } label: {
                     Text("Next")
@@ -98,6 +111,47 @@ struct DestinationSelector: View {
     }
 }
 
+struct HourlyServiceView: View {
+    
+    @Binding var selected: Int
+    @State var text = "None"
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            LeftText(text: "If you would like your driver to stay on standby, select the length of your booking. Your driver will stay on standby for you during your booked hours. Charged by the hour.\n\n$150/hour - Private SUV.")
+                .font(.system(size: 14))
+                .foregroundColor(.gray)
+            HStack {
+                Spacer()
+                Menu {
+                    Button("None") {
+                        text = "None"
+                        selected = 1
+                    }
+                    ForEach(2...24, id: \.self) { i in
+                        Button {
+                            text = "\(i) hours"
+                            selected = i
+                        } label: {
+                            Text(String(i) + " hours")
+                        }
+                    }
+                } label: {
+                    VStack {
+                        Text(text)
+                            .cornerRadius(20)
+                            .padding()
+                    }
+                    .cornerRadius(20)
+                    .background(Color(uiColor: .systemGray6))
+                }
+                .cornerRadius(20)
+
+            }
+        }
+    }
+}
+
 struct CarSelectorItem: View {
     
     @State var carType: CarType
@@ -121,7 +175,7 @@ struct CarSelectorItem: View {
                 }
                 .padding(EdgeInsets(top: 1, leading: 20, bottom: 20, trailing: 20))
                 Spacer()
-                LeftText(text: carType.price())
+                LeftText(text: carType.price(1))
                 .padding()
             }
             HStack {

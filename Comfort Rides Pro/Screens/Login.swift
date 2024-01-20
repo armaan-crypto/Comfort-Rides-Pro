@@ -148,11 +148,12 @@ fileprivate struct LoginButton: View {
 }
 
 struct CRLogo: View {
+    @State var isSmall = false
     var body: some View {
         Image("logo")
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(height: 200)
+            .frame(height: isSmall ? 150 : 200)
             .cornerRadius(20)
             .shadow(radius: 10)
     }

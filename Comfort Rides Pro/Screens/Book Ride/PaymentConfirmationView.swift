@@ -15,7 +15,7 @@ struct PaymentConfirmationView: View {
     var body: some View {
         VStack {
             HStack {
-                Text("Service Amount + Fees:")
+                Text("Service Amount + Transaction Fees:")
                     .font(.headline)
                     .padding()
                 Spacer()

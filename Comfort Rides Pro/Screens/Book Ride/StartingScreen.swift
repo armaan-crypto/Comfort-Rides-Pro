@@ -6,53 +6,36 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct StartingScreen: View {
     
     @State var ride = Ride()
     @State var phoneNumber: String = ""
-    @State private var date = Date.now
+    @State private var date = Date()
     @State var isActive = false
     @State var navigateTo: AnyView = AnyView(EmptyView())
+    @State var selected: Card? = nil
     
     var body: some View {
         ScrollView {
             VStack {
-                ZStack {
-                    Image("vegas")
-                        .resizable()
-                        .scaledToFill()
-                        .shadow(radius: 10)
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            Image("logo")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 100)
-                                .cornerRadius(10)
-                                .shadow(color: .white, radius: 20)
-                            Spacer()
-                        }
-                        Spacer()
-                    }
-                }
+                VegasImage()
                 VStack {
                     Spacer()
                         .frame(height: 20)
                     Spacer()
                     VStack(spacing: 0) {
                         HStack {
-                            Text("Choose your date and time")
+                            Text("Choose your pickup date and time")
                                 .bold()
                                 .foregroundColor(K.darkBlue)
                             Spacer()
                         }
-                        let newDate = Calendar.current.date(byAdding: DateComponents(minute: 16), to: Date())
-                        DatePicker("", selection: $date, in: (newDate ?? Date())...)
+                        DatePicker("", selection: $date, in: Date().addingTimeInterval(5400)..., displayedComponents: [.date, .hourAndMinute])
                             .datePickerStyle(.graphical)
                             .tint(K.darkBlue)
+                            .labelsHidden()
                         
                     }
                     Spacer()
@@ -66,35 +49,20 @@ struct StartingScreen: View {
                             .cornerRadius(10)
                     }
                     .simultaneousGesture(TapGesture().onEnded {
-                        print(Calendar.current.dateComponents([.hour, .minute], from: date).minute ?? 12345)
                         ride.time = date
                     })
                     .background(K.darkBlue)
                     .cornerRadius(10)
                     Spacer()
                         .frame(height: 20)
+
                 }
-                .padding(.trailing)
-                .padding(.leading)
-                .padding(.bottom)
+                
+                .padding([.trailing, .leading, .bottom])
             }
         }
         .background(.white)
-        .toolbar {
-             ToolbarItem(placement: .navigationBarLeading) {
-                 Menu(content: {
-                     Button {
-                         self.navigateTo = AnyView(BookedRides())
-                         isActive = true
-                     } label: {
-                         Text("Upcoming Rides")
-                     }
-
-                 }, label: {
-                     Image(systemName: "gear")
-                 })
-              }
-          }
+        .toolbar(content: bar)
         .background(NavigationLink(destination: self.navigateTo, isActive: $isActive) {
             EmptyView()
         })
@@ -102,8 +70,37 @@ struct StartingScreen: View {
         .navigationTitle("Private")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            UIDatePicker.appearance().minuteInterval = 15
+            UIDatePicker.appearance().minuteInterval = 30
         }
+    }
+    
+    @ToolbarContentBuilder
+    func bar() -> some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            Menu(content: {
+                Button {
+                    self.navigateTo = AnyView(BookedRides())
+                    isActive = true
+                } label: {
+                    Text("Upcoming Rides")
+                }
+                
+                Button {
+                    self.navigateTo = AnyView(ListCards(id: U.getUserID()!, selected: $selected))
+                    isActive = true
+                } label: {
+                    Text("Payment")
+                }
+                
+                Button(action: {
+                    EmailController.shared.sendEmail(subject: "Account Deletion Request", body: "Deletion request for User ID: \(UserDefaults.standard.string(forKey: U.userId) ?? "NOT FOUND")", to: "info@privateappusa.com")
+                 }) {
+                     Text("Request Account Deletion")
+                 }
+            }, label: {
+                Image(systemName: "gear")
+            })
+         }
     }
 }
 
@@ -129,6 +126,17 @@ struct StartingScreen_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             StartingScreen()
+        }
+    }
+}
+
+struct VegasImage: View {
+    var body: some View {
+        ZStack {
+            Image("vegas")
+                .resizable()
+                .scaledToFill()
+                .shadow(radius: 10)
         }
     }
 }
