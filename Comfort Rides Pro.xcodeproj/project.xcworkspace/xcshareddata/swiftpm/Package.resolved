@@ -1,4 +1,5 @@
 {
+  "originHash" : "43ec7b9a28ace18c105b588d55dd6c1b8c7d55b10bd581688d4496aac6fd6bea",
   "pins" : [
     {
       "identity" : "alerttoast",
@@ -10,75 +11,57 @@
       }
     },
     {
-      "identity" : "bluecryptor",
+      "identity" : "supabase-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Kitura/BlueCryptor.git",
+      "location" : "https://github.com/supabase/supabase-swift",
       "state" : {
-        "revision" : "cec97c24b111351e70e448972a7d3fe68a756d6d",
-        "version" : "2.0.2"
+        "revision" : "36528618a2ce8eac61c8cff878358b32ead6771e",
+        "version" : "2.49.0"
       }
     },
     {
-      "identity" : "bluesocket",
+      "identity" : "swift-asn1",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Kitura/BlueSocket.git",
+      "location" : "https://github.com/apple/swift-asn1.git",
       "state" : {
-        "revision" : "7b23a867008e0027bfd6f4d398d44720707bc8ca",
-        "version" : "2.0.4"
+        "revision" : "a9a5efd40eaf558a2bcd48d64b1d1646be686008",
+        "version" : "1.7.1"
       }
     },
     {
-      "identity" : "bluesslservice",
+      "identity" : "swift-clocks",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Kitura/BlueSSLService.git",
+      "location" : "https://github.com/pointfreeco/swift-clocks",
       "state" : {
-        "revision" : "b27a94d063962dfa1bba9f79814c4ef202cf33a4",
-        "version" : "2.0.2"
+        "revision" : "72d749bf341b78851203066ab421869b783ec42a",
+        "version" : "1.1.0"
       }
     },
     {
-      "identity" : "in-app-payments-ios",
+      "identity" : "swift-concurrency-extras",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/square/in-app-payments-ios.git",
+      "location" : "https://github.com/pointfreeco/swift-concurrency-extras",
       "state" : {
-        "revision" : "cefaa37e8365bb955e815dd770affca1198b4018",
-        "version" : "1.6.2"
+        "revision" : "a90e2e40a7a840a853dd29e57cbef5dbb72c9d5b",
+        "version" : "1.4.0"
       }
     },
     {
-      "identity" : "in-app-payments-ios-swiftui",
+      "identity" : "swift-crypto",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/realashleybailey/in-app-payments-ios-swiftui.git",
+      "location" : "https://github.com/apple/swift-crypto.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "c3669619da282ff60ae2b99dd54e6c4c0116d409"
+        "revision" : "1b6b2e274e85105bfa155183145a1dcfd63331f1",
+        "version" : "4.5.0"
       }
     },
     {
-      "identity" : "loggerapi",
+      "identity" : "swift-http-types",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Kitura/LoggerAPI.git",
+      "location" : "https://github.com/apple/swift-http-types.git",
       "state" : {
-        "revision" : "e82d34eab3f0b05391082b11ea07d3b70d2f65bb",
-        "version" : "1.9.200"
-      }
-    },
-    {
-      "identity" : "swift-log",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-log.git",
-      "state" : {
-        "revision" : "532d8b529501fb73a2455b179e0bbb6d49b652ed",
-        "version" : "1.5.3"
-      }
-    },
-    {
-      "identity" : "swift-smtp",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Kitura/Swift-SMTP",
-      "state" : {
-        "revision" : "4b7666bb8cee33f0cb367786af17b9a2ebb63047",
-        "version" : "6.0.0"
+        "revision" : "db774a277f60063a32d854f2980299caf06da041",
+        "version" : "1.6.0"
       }
     },
     {
@@ -89,7 +72,16 @@
         "revision" : "48e0bdbcecc901b0cfd6962f0b42225136789c07",
         "version" : "2.0.0"
       }
+    },
+    {
+      "identity" : "xctest-dynamic-overlay",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
+      "state" : {
+        "revision" : "401bf70d95bfe8db2a1dc619f9e175a85c089321",
+        "version" : "1.10.1"
+      }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

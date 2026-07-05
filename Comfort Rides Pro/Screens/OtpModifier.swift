@@ -26,12 +26,18 @@ struct OtpModifer: ViewModifier {
         content
             .multilineTextAlignment(.center)
             .keyboardType(.numberPad)
+            .font(.system(size: 20, weight: .semibold, design: .rounded))
+            .foregroundColor(.white)
+            .tint(K.gold)
             .onReceive(Just(pin)) {_ in limitText(textLimt)}
-            .frame(width: 45, height: 45)
-            .background(Color.white.cornerRadius(5))
+            .frame(width: 36, height: 52)
             .background(
-                RoundedRectangle(cornerRadius: 5)
-                    .stroke(Color("blueColor"), lineWidth: 2)
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(K.surface)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(pin.isEmpty ? K.hairline : K.gold, lineWidth: 1.5)
             )
     }
 }

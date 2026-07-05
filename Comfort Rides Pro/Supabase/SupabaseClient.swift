@@ -4,7 +4,6 @@
 //
 
 import Supabase
-import SwiftUI
 
 let supabase = SupabaseClient(
     supabaseURL: URL(string: K.supabaseURL)!,

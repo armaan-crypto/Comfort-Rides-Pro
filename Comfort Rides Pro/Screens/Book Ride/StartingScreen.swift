@@ -2,105 +2,117 @@
 //  StartingScreen.swift
 //  Comfort Rides Pro
 //
-//  Created by Armaan Ahmed on 2/18/23.
-//
 
 import SwiftUI
 import UIKit
 
 struct StartingScreen: View {
-    
-    @State var ride = Ride()
-    @State var phoneNumber: String = ""
-    @State private var date = Date()
-    @State var isActive = false
-    @State var navigateTo: AnyView = AnyView(EmptyView())
-    @State var selected: Card? = nil
-    
-    var body: some View {
-        ScrollView {
-            VStack {
-                VegasImage()
-                VStack {
-                    Spacer()
-                        .frame(height: 20)
-                    Spacer()
-                    VStack(spacing: 0) {
-                        HStack {
-                            Text("Choose your pickup date and time")
-                                .bold()
-                                .foregroundColor(K.darkBlue)
-                            Spacer()
-                        }
-                        DatePicker("", selection: $date, in: Date().addingTimeInterval(5400)..., displayedComponents: [.date, .hourAndMinute])
-                            .datePickerStyle(.graphical)
-                            .tint(K.darkBlue)
-                            .labelsHidden()
-                        
-                    }
-                    Spacer()
-                    NavigationLink {
-                        DestinationSelector(ride: $ride)
-                    } label: {
-                        Text("Schedule Ride")
-                            .bold()
-                            .foregroundColor(.white)
-                            .frame(width: 330, height: 50)
-                            .cornerRadius(10)
-                    }
-                    .simultaneousGesture(TapGesture().onEnded {
-                        ride.time = date
-                    })
-                    .background(K.darkBlue)
-                    .cornerRadius(10)
-                    Spacer()
-                        .frame(height: 20)
 
+    @State private var ride = Ride()
+    @State private var date = Date()
+    @State private var isActive = false
+    @State private var navigateTo: AnyView = AnyView(EmptyView())
+    @State private var profile: ProfileRow? = nil
+
+    var body: some View {
+        ZStack {
+            K.backgroundGradient
+                .ignoresSafeArea()
+
+            ScrollView {
+                VStack(spacing: 0) {
+                    VegasImage()
+
+                    VStack(alignment: .leading, spacing: 24) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Overline(text: "Private")
+                            SerifHeading(text: "Where to next?", size: 30)
+                        }
+                        .padding(.leading)
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Overline(text: "Pickup date & time")
+                                .padding([.top, .horizontal], 16)
+                            // Minimum lead time: 90 minutes (5400 seconds), matches server-side trigger
+                            DatePicker("", selection: $date, in: Date().addingTimeInterval(5400)..., displayedComponents: [.date, .hourAndMinute])
+                                .datePickerStyle(.graphical)
+                                .tint(K.gold)
+                                .labelsHidden()
+                                .padding([.bottom, .horizontal], 8)
+                        }
+                        .luxCard()
+
+                        NavigationLink {
+                            DestinationSelector(ride: $ride)
+                        } label: {
+                            CTALabel(title: "Schedule Ride")
+                        }
+                        .simultaneousGesture(TapGesture().onEnded { ride.time = date })
+
+                        Spacer().frame(height: 8)
+                    }
+                    .padding(20)
+                    .padding(.top, -44)
                 }
-                
-                .padding([.trailing, .leading, .bottom])
             }
         }
-        .background(.white)
         .toolbar(content: bar)
-        .background(NavigationLink(destination: self.navigateTo, isActive: $isActive) {
-            EmptyView()
-        })
-        .preferredColorScheme(.light)
+        .background(
+            NavigationLink(destination: navigateTo, isActive: $isActive) { EmptyView() }
+        )
         .navigationTitle("Private")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            UIDatePicker.appearance().minuteInterval = 30
+        .onAppear { UIDatePicker.appearance().minuteInterval = 30 }
+        .task {
+            do {
+                let fetched = try await BookingService().fetchProfile()
+                if fetched.email == nil {
+                    try? await supabase.auth.signOut()
+                } else {
+                    profile = fetched
+                }
+            } catch {
+                try? await supabase.auth.signOut()
+            }
         }
     }
-    
+
     @ToolbarContentBuilder
     func bar() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
-            Menu(content: {
-                Button {
-                    self.navigateTo = AnyView(BookedRides())
-                    isActive = true
-                } label: {
-                    Text("Upcoming Rides")
+            Menu {
+                if let name = profile?.fullName, !name.isEmpty {
+                    Section(name) {
+                        Button {
+                            navigateTo = AnyView(BookedRides())
+                            isActive = true
+                        } label: {
+                            Label("Upcoming Rides", systemImage: "car.fill")
+                        }
+                        Button(role: .destructive) {
+                            Task { try? await supabase.auth.signOut() }
+                        } label: {
+                            Label("Log Out", systemImage: "rectangle.portrait.and.arrow.right")
+                        }
+                    }
+                } else {
+                    Button {
+                        navigateTo = AnyView(BookedRides())
+                        isActive = true
+                    } label: {
+                        Label("Upcoming Rides", systemImage: "car.fill")
+                    }
+                    Button(role: .destructive) {
+                        Task { try? await supabase.auth.signOut() }
+                    } label: {
+                        Label("Log Out", systemImage: "rectangle.portrait.and.arrow.right")
+                    }
                 }
-                
-                Button {
-                    self.navigateTo = AnyView(ListCards(id: U.getUserID()!, selected: $selected))
-                    isActive = true
-                } label: {
-                    Text("Payment")
-                }
-                
-                Button(action: {
-                    EmailController.shared.sendEmail(subject: "Account Deletion Request", body: "Deletion request for User ID: \(UserDefaults.standard.string(forKey: U.userId) ?? "NOT FOUND")", to: "info@privateappusa.com")
-                 }) {
-                     Text("Request Account Deletion")
-                 }
-            }, label: {
+            } label: {
                 Image(systemName: "gear")
-            })
-         }
+                    .foregroundColor(.white.opacity(0.85))
+            }
+        }
     }
 }
 
@@ -108,35 +120,38 @@ struct WhereToButton: View {
     var body: some View {
         VStack {
             HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(K.darkBlue)
-                Text("Where to?")
-                    .foregroundColor(Color(uiColor: .systemGray4))
+                Image(systemName: "magnifyingglass").foregroundColor(K.gold)
+                Text("Where to?").foregroundColor(.white.opacity(0.35))
                 Spacer()
             }
             .frame(width: 300)
             .padding()
         }
-        .background(Color(uiColor: .systemGray6))
-        .cornerRadius(10)
+        .background(K.surface)
+        .cornerRadius(14)
     }
 }
 
 struct StartingScreen_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
-            StartingScreen()
-        }
+        NavigationStack { StartingScreen() }
     }
 }
 
 struct VegasImage: View {
     var body: some View {
-        ZStack {
-            Image("vegas")
-                .resizable()
-                .scaledToFill()
-                .shadow(radius: 10)
-        }
+        Image("vegas")
+            .resizable()
+            .scaledToFill()
+            .frame(height: 250)
+            .frame(maxWidth: .infinity)
+            .clipped()
+            .overlay(
+                LinearGradient(
+                    colors: [.clear, K.darkBlue.opacity(0.45), K.darkBlue],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
     }
 }

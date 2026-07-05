@@ -11,7 +11,7 @@ import AlertToast
 import MapKit
 
 struct DestinationSelector: View {
-    
+
     @State var showing1 = false
     @State var showing = false
     @Binding var ride: Ride
@@ -28,14 +28,25 @@ struct DestinationSelector: View {
     @State var isError = false
     @State var error = ""
     @State var layover = 1
-    
+
     var body: some View {
-        ScrollView {
-            VStack(spacing: 30) {
-                LocationSelector(ride: $ride, placeholder: "Pickup Location", address: $pickupAddress, text: $pickupAddress, isShowing: $showing1, placemark: $pickUpPlacemark)
-                LocationSelector(ride: $ride, placeholder: "Destination", address: $whereToAddress, text: $whereToText, isShowing: $showing, placemark: $dropOffPlacemark)
-                VStack(spacing: 20) {
-                    LeftText(text: "Select Ride", size: 26, weight: .bold)
+        ZStack {
+            K.backgroundGradient
+                .ignoresSafeArea()
+
+            ScrollView {
+                VStack(spacing: 28) {
+                    VStack(spacing: 14) {
+                        LocationSelector(ride: $ride, placeholder: "Pickup Location", address: $pickupAddress, text: $pickupAddress, isShowing: $showing1, placemark: $pickUpPlacemark)
+                        LocationSelector(ride: $ride, placeholder: "Destination", address: $whereToAddress, text: $whereToText, isShowing: $showing, placemark: $dropOffPlacemark)
+                    }
+
+                    VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Overline(text: "Your vehicle")
+                            SerifHeading(text: "Select Ride")
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
 //                    CarSelectorItem(carType: .crsedan, isSelected: $firstSelected)
 //                        .onTapGesture {
 //                            firstSelected = true
@@ -43,41 +54,45 @@ struct DestinationSelector: View {
 //                            ride.carType = .crsedan
 //                            F.vibrate(.heavy)
 //                        }
-                    CarSelectorItem(carType: .crluxury, isSelected: $secondSelected)
-                        .onTapGesture {
-                            firstSelected = false
-                            secondSelected = true
-                            ride.carType = .crluxury
-                            F.vibrate(.heavy)
-                        }
-                }
-                Divider()
-                VStack(spacing: 10) {
-                    LeftText(text: "Hourly Service", size: 26, weight: .bold)
-                    HourlyServiceView(selected: $layover)
-                }
-                Button {
-                    ride.layover = layover
-                    ride.hasLayover = false
-                    ride.note = ""
-                    if layover > 1 {
-                        ride.hasLayover = true
-                        ride.note = "Layover time of \(layover) hours. "
+                        CarSelectorItem(carType: .crluxury, isSelected: $secondSelected)
+                            .onTapGesture {
+                                firstSelected = false
+                                secondSelected = true
+                                ride.carType = .crluxury
+                                F.vibrate(.heavy)
+                            }
                     }
-                    advance = true
-                } label: {
-                    Text("Next")
-                        .bold()
-                        .foregroundColor(.white)
-                        .frame(width: 330, height: 50)
-                        .cornerRadius(10)
+
+                    Rectangle()
+                        .fill(K.hairline)
+                        .frame(height: 1)
+
+                    VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Overline(text: "Driver standby")
+                            SerifHeading(text: "Hourly Service")
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        HourlyServiceView(selected: $layover)
+                    }
+
+                    Button {
+                        ride.layover = layover
+                        ride.hasLayover = false
+                        ride.note = ""
+                        if layover > 1 {
+                            ride.hasLayover = true
+                            ride.note = "Layover time of \(layover) hours. "
+                        }
+                        advance = true
+                    } label: {
+                        CTALabel(title: "Next", enabled: !isDisabled())
+                    }
+                    .disabled(isDisabled())
+                    NavigationLink(destination: Overview(ride: $ride), isActive: $advance) { EmptyView() }
                 }
-                .background(buttonColor())
-                .cornerRadius(10)
-                .disabled(isDisabled())
-                NavigationLink(destination: Overview(ride: $ride), isActive: $advance) { EmptyView() }
+                .padding(20)
             }
-            .padding()
         }
         .onAppear(perform: {
             whereToAddress = ride.dropOffLocation ?? ""
@@ -92,7 +107,6 @@ struct DestinationSelector: View {
                 secondSelected = true
             }
         })
-        .preferredColorScheme(.light)
         .navigationTitle("Enter Locations")
         .navigationBarTitleDisplayMode(.large)
         .toast(isPresenting: $isUploading) {
@@ -100,128 +114,136 @@ struct DestinationSelector: View {
         }
         .toast(isPresenting: $isError) { AlertToast(type: .regular, title: "Error while finding your location", subTitle: error) }
     }
-    
+
     func isDisabled() -> Bool {
         let noCarSelected = !(firstSelected || secondSelected)
         let textFieldsAreEmpty = (whereToAddress.isEmpty || pickupAddress.isEmpty)
         return (noCarSelected || textFieldsAreEmpty)
     }
     func buttonColor() -> Color {
-        return isDisabled() ? Color(uiColor: .systemGray4) : K.darkBlue
+        return isDisabled() ? Color.white.opacity(0.08) : K.gold
     }
 }
 
 struct HourlyServiceView: View {
-    
+
     @Binding var selected: Int
     @State var text = "None"
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            LeftText(text: "If you would like your driver to stay on standby, select the length of your booking. Your driver will stay on standby for you during your booked hours. Charged by the hour.\n\n$150/hour - Private SUV.")
-                .font(.system(size: 14))
-                .foregroundColor(.gray)
-            HStack {
-                Spacer()
-                Menu {
-                    Button("None") {
-                        text = "None"
-                        selected = 1
-                    }
-                    ForEach(2...24, id: \.self) { i in
-                        Button {
-                            text = "\(i) hours"
-                            selected = i
-                        } label: {
-                            Text(String(i) + " hours")
-                        }
-                    }
-                } label: {
-                    VStack {
-                        Text(text)
-                            .cornerRadius(20)
-                            .padding()
-                    }
-                    .cornerRadius(20)
-                    .background(Color(uiColor: .systemGray6))
-                }
-                .cornerRadius(20)
 
+    var body: some View {
+        VStack(spacing: 16) {
+            LeftText(text: "If you would like your driver to stay on standby, select the length of your booking. Your driver will stay on standby for you during your booked hours. Charged by the hour.\n\n$150/hour - Private SUV.")
+                .font(.system(size: 13))
+                .foregroundColor(K.textDim)
+            Menu {
+                Button("None") {
+                    text = "None"
+                    selected = 1
+                }
+                ForEach(2...24, id: \.self) { i in
+                    Button {
+                        text = "\(i) hours"
+                        selected = i
+                    } label: {
+                        Text(String(i) + " hours")
+                    }
+                }
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "clock")
+                        .foregroundColor(K.gold)
+                    Text(text)
+                        .font(.system(size: 16))
+                        .foregroundColor(.white)
+                    Spacer()
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.45))
+                }
+                .padding(.horizontal, 16)
+                .frame(height: 54)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(K.surface)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .strokeBorder(K.hairline, lineWidth: 1)
+                )
             }
         }
     }
 }
 
 struct CarSelectorItem: View {
-    
+
     @State var carType: CarType
     @Binding var isSelected: Bool
-    
+
     var body: some View {
-        ZStack {
-            VStack {
-                LeftText(text: carType.title(), weight: .heavy)
-                    .padding(EdgeInsets(top: 20, leading: 20, bottom: 0, trailing: 20))
-                VStack(spacing: 5) {
-                    ForEach(0..<carType.description1().count, id: \.self) { i in
-                        let s = carType.description1()[i]
-                        let img = carType.images()[i]
-                        HStack {
-                            Image(systemName: img)
-                                .foregroundColor(.white)
-                            LeftText(text: s, size: 13)
-                        }
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(carType.title())
+                        .font(.system(size: 21, weight: .semibold, design: .serif))
+                        .foregroundColor(.white)
+                    Text(carType.price(1))
+                        .font(.system(size: 13, weight: .semibold))
+                        .tracking(0.5)
+                        .foregroundColor(K.gold)
+                }
+                Spacer()
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 22))
+                    .foregroundColor(isSelected ? K.gold : .white.opacity(0.25))
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(0..<carType.description1().count, id: \.self) { i in
+                    let s = carType.description1()[i]
+                    let img = carType.images()[i]
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: img)
+                            .font(.system(size: 12))
+                            .foregroundColor(K.gold)
+                            .frame(width: 18)
+                        Text(s)
+                            .font(.system(size: 13))
+                            .foregroundColor(.white.opacity(0.7))
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
-                .padding(EdgeInsets(top: 1, leading: 20, bottom: 20, trailing: 20))
-                Spacer()
-                LeftText(text: carType.price(1))
-                .padding()
             }
+
             HStack {
                 Spacer()
-                VStack {
-                    Spacer()
-                    VStack {
-                        Image(uiImage: UIImage(named: carType.rawValue)!)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 50)
-                            .padding(.top)
-                            .padding(.leading)
-                            .padding(.bottom)
-                        
-                    }
-//                    .background(.white)
-                    .cornerRadius(20)
-                        .padding()
-                }
-            }
-            HStack {
-                Spacer()
-                VStack {
-                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                        .padding()
-                        .imageScale(.large)
-                    Spacer()
-                }
+                Image(uiImage: UIImage(named: carType.rawValue)!)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 72)
+                    .shadow(color: .black.opacity(0.4), radius: 10, x: 0, y: 6)
             }
         }
-//        .background(carType.primaryColor())
-        .background(.black)
-        .foregroundColor(.white)
-        .cornerRadius(10)
-//        .frame(height: 150)
-        .bold()
+        .padding(18)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(K.surface)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(isSelected ? K.gold : K.hairline, lineWidth: isSelected ? 1.5 : 1)
+        )
+        .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .animation(.easeInOut(duration: 0.15), value: isSelected)
     }
 }
 
 struct LeftText: View {
-    
+
     @State var text: String
     @State var size: CGFloat = 16
     @State var weight: Font.Weight? = nil
-    
+
     var body: some View {
         HStack {
             Text(text)
@@ -232,27 +254,27 @@ struct LeftText: View {
 }
 
 struct LocationSelector: View {
-    
+
     @Binding var ride: Ride
     @State var placeholder: String
     @Binding var address: String
     @Binding var text: String
     @Binding var isShowing: Bool
     @Binding var placemark: MKPlacemark?
-    
+
     var body: some View {
         HStack(spacing: 10) {
             BetterTextField(placeholder: placeholder, enteredText: $address, width: 250) {
                 isShowing = true
             }
-            
+
             Button {
                 isShowing = true
             } label: {
                 Image(systemName: "map")
-                    .padding()
-                    .foregroundColor(.white)
-                    .bold()
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(K.gold)
+                    .frame(width: 54, height: 54)
             }
             .onChange(of: address, perform: { newValue in
                 if placeholder == "Destination" {
@@ -277,36 +299,45 @@ struct LocationSelector: View {
                     ride.pickUpLocation = address
                 }
             })
-            .background(K.darkBlue)
-                .cornerRadius(10)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(K.surface)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(K.hairline, lineWidth: 1)
+            )
         }
     }
 }
 
 struct BetterTextField: View {
-    
+
     @State var placeholder: String
     @Binding var enteredText: String
     @State var width: CGFloat
     @State var onClick: (() -> Void)
-    
+
     var body: some View {
-        VStack {
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(K.darkBlue)
-                TextField(text: $enteredText) {
-                    Text(placeholder)
-                        .foregroundColor(Color(uiColor: .systemGray4))
-                }
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(K.gold)
+            TextField("", text: $enteredText, prompt: Text(placeholder).foregroundColor(.white.opacity(0.35)))
+                .foregroundColor(.white)
+                .tint(K.gold)
                 .onTapGesture(perform: onClick)
-                Spacer()
-            }
-//            .frame(width: width)
-            .padding()
+            Spacer(minLength: 0)
         }
-        .background(Color(uiColor: .systemGray6))
-        .cornerRadius(10)
+        .padding(.horizontal, 16)
+        .frame(height: 54)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(K.surface)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(K.hairline, lineWidth: 1)
+        )
     }
 }
 

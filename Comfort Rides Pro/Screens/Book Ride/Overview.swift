@@ -2,301 +2,270 @@
 //  Overview.swift
 //  Comfort Rides Pro
 //
-//  Created by Armaan Ahmed on 2/22/23.
-//
 
 import SwiftUI
 import AlertToast
 
 struct Overview: View {
-    
+
     @Binding var ride: Ride
-    @State var isUploading = false
-    @State var posted = false
-    @State var isError = false
-    @State var error = ""
-    @State var enabled = true
-    @State var advance = false
-    @State var card: Card? = nil
-    
-    @State var done = false
-    @State var total = 0
-    @State var showConfirmation = false
-    @State var detent: PresentationDetent = .fraction(7/10)
-    
+    @State private var isUploading = false
+    @State private var posted = false
+    @State private var isError = false
+    @State private var error = ""
+    @State private var enabled = true
+    @State private var advance = false
+    @State private var passengerName: String = ""
+
     var body: some View {
         ZStack {
+            K.backgroundGradient
+                .ignoresSafeArea()
+
             ScrollView {
-                VStack {
-                    HStack {
-                        Spacer()
-                        Image(uiImage: UIImage(named: ride.carType!.rawValue)!)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 300)
+                VStack(spacing: 16) {
+                    Image(uiImage: UIImage(named: ride.carType!.rawValue)!)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 290)
+                        .shadow(color: .black.opacity(0.5), radius: 24, x: 0, y: 14)
+                        .padding(.top, 8)
+
+                    CarTypeOverviewSection(carType: ride.carType!)
+                        .padding(18)
+                        .luxCard()
+                    TimeOverviewSection(ride: $ride)
+                        .padding(18)
+                        .luxCard()
+                    RideDetailsOverviewSection(ride: ride)
+                        .padding(18)
+                        .luxCard()
+                    if !passengerName.isEmpty {
+                        PassengerOverviewSection(name: passengerName)
+                            .padding(18)
+                            .luxCard()
                     }
-                    VStack {
-                        CarTypeOverviewSection(carType: ride.carType!)
-                        Divider()
-                        PaymentOverviewSection(ride: ride, carType: ride.carType!, card: $card)
-                        Divider()
-                        TimeOverviewSection(ride: $ride)
-                        Divider()
-                        RideDetailsOverviewSection(ride: ride)
-                        Divider()
-                        if ride.hasLayover {
-                            HourlyServiceOverviewSection(ride: ride)
-                            Divider()
-                        }
+                    if ride.hasLayover {
+                        HourlyServiceOverviewSection(ride: ride)
+                            .padding(18)
+                            .luxCard()
                     }
-                    .padding()
+
                     Button {
-                        showConfirmation = true
+                        bookRide()
                     } label: {
-                        Text("Reserve ride")
-                            .foregroundColor(.white)
-                            .padding()
-                            .frame(width: 320)
-                            .bold()
+                        CTALabel(title: "Reserve ride", enabled: enabled)
                     }
-//                    .disabled((!enabled || (card == nil)))
-                    .background((!enabled || (card == nil)) ? Color(uiColor: .systemGray4) : K.darkBlue)
-                    .cornerRadius(10)
-                    .frame(width: 320)
+                    .disabled(!enabled)
+                    .padding(.top, 8)
                 }
+                .padding(20)
             }
             Spacer()
                 .toast(isPresenting: $posted) {
-                    AlertToast(type: .complete(K.darkBlue), title: "Booked")
+                    AlertToast(type: .complete(K.gold), title: "Booked")
                 }
                 .toast(isPresenting: $isUploading) {
                     AlertToast(type: .loading, title: "")
                 }
-                .toast(isPresenting: $isError) { AlertToast(type: .regular, title: "Error while booking your ride", subTitle: error) }
-            NavigationLink(destination: StartingScreen().navigationBarBackButtonHidden(), isActive: $advance) { EmptyView() }
+                .toast(isPresenting: $isError) {
+                    AlertToast(type: .regular, title: "Error while booking your ride", subTitle: error)
+                }
         }
-        .onChange(of: done, perform: { newValue in
-            if done == true {
-                bookRide(amount: total)
+        .navigationDestination(isPresented: $advance) {
+            StartingScreen().navigationBarBackButtonHidden()
+        }
+        .onAppear { setDefaultTime() }
+        .task {
+            if let profile = try? await BookingService().fetchProfile() {
+                passengerName = profile.fullName
             }
-            done = false
-            total = 0
-        })
-        .onAppear(perform: {
-            print(ride)
-            print(V.cards)
-            if let c = U.getDefaultCard(in: V.cards) {
-                card = c
-            }
-            setDefaultTime()
-        })
-        .sheet(isPresented: $showConfirmation) {
-            PaymentConfirmationView(total: $total, isPresented: $showConfirmation, isDone: $done, totalAmount: Double(ride.carType!.totalPrice(ride.layover)) / 100)
-                .presentationDetents([.fraction(7/10)],
-                                     selection: $detent)
         }
         .navigationTitle("Ride Overview")
         .navigationBarTitleDisplayMode(.inline)
-        .background(Color(uiColor: .systemGray6))
     }
-    
-    func bookRide(amount: Int) {
+
+    private func bookRide() {
         enabled = false
-        startLoad()
+        isUploading = true
         Task {
             do {
-                try await SquareManager().book(ride: ride)
-//                let _ = try await SquarePayment().pay(with: card!.id, amount: amount)
-                stopLoad()
-                showCheck()
+                try await BookingService().createReservation(ride: ride)
+                isUploading = false
+                posted = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    posted = false
+                    enabled = true
+                    advance = true
+                }
             } catch {
-                stopLoad()
+                isUploading = false
                 self.error = error.localizedDescription
                 isError = true
                 enabled = true
             }
         }
     }
-    
-    func setDefaultTime() {
+
+    private func setDefaultTime() {
+        guard let time = ride.time else { return }
         let calendar = Calendar.current
-        var components = calendar.dateComponents([.calendar, .minute, .hour, .month, .year, .timeZone, .day, .era, .nanosecond, .quarter, .second, .weekOfMonth, .weekday, .weekdayOrdinal, .weekOfYear, .yearForWeekOfYear], from: ride.time!)
-        print(ride.formattedDate)
-        let h = components.hour!
-        let m = components.minute!
-        let secondIsZero = (components.second! == 0)
-        let minuteIsValid = (m == 0  || m == 30)
-        let isNotValidTime = !(secondIsZero && minuteIsValid)
-        if isNotValidTime {
-            let minuteRemainder = components.minute! % 30
-            components.minute! -= minuteRemainder
+        var components = calendar.dateComponents(
+            [.calendar, .minute, .hour, .month, .year, .timeZone,
+             .day, .era, .nanosecond, .quarter, .second,
+             .weekOfMonth, .weekday, .weekdayOrdinal, .weekOfYear, .yearForWeekOfYear],
+            from: time
+        )
+        let m = components.minute ?? 0
+        let secondIsZero = (components.second ?? 0) == 0
+        let minuteIsValid = (m == 0 || m == 30)
+        if !(secondIsZero && minuteIsValid) {
+            components.minute = m - (m % 30)
             ride.time = calendar.date(from: components)
-        }
-    }
-    
-//    func showLoadFor(seconds: Double, after: (() -> Void)?) {
-//        startLoad()
-//        DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
-//            stopLoad()
-//            guard let after = after else { return }
-//            after()
-//        }
-//    }
-    
-    func startLoad() {
-        isUploading = true
-    }
-    
-    func stopLoad() {
-        isUploading = false
-    }
-    
-    func showCheck() {
-        posted = true
-        let seconds = 1.0
-        DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
-            posted = false
-            enabled = true
-            advance = true
         }
     }
 }
 
+// MARK: - Section views
+
 struct CarTypeOverviewSection: View {
-    
-    @State var carType: CarType
-    
+    let carType: CarType
+
     var body: some View {
-        VStack(spacing: 30) {
-            VStack {
-                LeftText(text: carType.title())
-                    .bold()
-                    .font(.system(size: 24))
-                let t = carType.description1().joined(separator: ". ")
+        VStack(alignment: .leading, spacing: 14) {
+            Overline(text: "Vehicle")
+            Text(carType.title())
+                .font(.system(size: 22, weight: .semibold, design: .serif))
+                .foregroundColor(.white)
+            VStack(alignment: .leading, spacing: 7) {
                 ForEach(carType.description1(), id: \.self) { d in
-                    LeftText(text: "• " + d)
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(K.gold)
+                            .padding(.top, 3)
+                        Text(d)
+                            .font(.system(size: 13))
+                            .foregroundColor(.white.opacity(0.65))
+                    }
                 }
             }
-            VStack {
-                HStack {
-                    Image(systemName: "person")
-                        .bold()
-                    LeftText(text: "Seats 1-" + "\(carType.seats()) People")
-                }
+            HStack(spacing: 8) {
+                Image(systemName: "person.2.fill")
+                    .font(.system(size: 13))
+                    .foregroundColor(K.gold)
+                Text("Seats 1-\(carType.seats()) People")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 struct TimeOverviewSection: View {
-    
     @Binding var ride: Ride
-    
-    var body: some View {
-        VStack(spacing: 30) {
-            LeftText(text: "Appointment")
-                .font(.system(size: 20))
-            HStack {
-                Text("Your " + ride.carType!.title() + " will arrive " + ride.formattedDate + " PST")
-                Spacer()
-            }
-        }
-        .padding(4)
-    }
-}
 
-struct PaymentOverviewSection: View {
-    
-    @State var ride: Ride
-    @State var carType: CarType
-    @State var selected: Card? = nil
-    @Binding var card: Card?
-    
     var body: some View {
-        VStack(spacing: 30) {
-            LeftText(text: "Payment")
-                .font(.system(size: 20))
-                ZStack {
-                    NavigationLink {
-                        ListCards(id: U.getUserID()!, selected: $card, shouldPop: true)
-                    } label: {
-                        if let card = card {
-                            CardRow(card: card, selected: $selected, showNext: true, loadCards: {})
-                                .padding()
-                        } else {
-                            HStack {
-                                Text("You currently have no cards added")
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .imageScale(.large)
-                                    .foregroundStyle(K.darkBlue)
-                                    .bold()
-                            }
-                                .padding()
-                        }
-                    }
-                }
-                .background(Color.white)
-                .cornerRadius(20)
-            HStack {
-                Text("Est.")
-                Spacer()
-                    .frame(width: 20)
-                Text("$\((Double(carType.totalPrice(ride.layover)) / 100), specifier: "%.2f")")
-                    .font(.system(size: 40))
-                Spacer()
+        VStack(alignment: .leading, spacing: 14) {
+            Overline(text: "Appointment")
+            HStack(spacing: 12) {
+                Image(systemName: "calendar.badge.clock")
+                    .font(.system(size: 18))
+                    .foregroundColor(K.gold)
+                Text("Your \(ride.carType!.title()) will arrive \(ride.formattedDate) PST")
+                    .font(.system(size: 15))
+                    .foregroundColor(.white.opacity(0.9))
             }
         }
-        .padding(4)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 struct RideDetailsOverviewSection: View {
-    
-    @State var ride: Ride
-    
+    let ride: Ride
+
     var body: some View {
-        VStack(spacing: 30) {
-            LeftText(text: "Ride Details")
-                .font(.system(size: 20))
-            HStack {
-                Image(systemName: "car.circle")
-                    .bold()
-                    .font(.system(size: 30))
-                LeftText(text: "From: " + ride.pickUpLocation!)
+        VStack(alignment: .leading, spacing: 14) {
+            Overline(text: "Ride Details")
+            HStack(alignment: .top, spacing: 12) {
+                Circle()
+                    .strokeBorder(K.gold, lineWidth: 1.5)
+                    .frame(width: 10, height: 10)
+                    .padding(.top, 4)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("FROM")
+                        .font(.system(size: 10, weight: .semibold))
+                        .tracking(1.5)
+                        .foregroundColor(.white.opacity(0.4))
+                    Text(ride.pickUpLocation ?? "")
+                        .font(.system(size: 14))
+                        .foregroundColor(.white.opacity(0.9))
+                }
             }
-            HStack {
-                Image(systemName: "car.circle.fill")
-                    .bold()
-                    .font(.system(size: 30))
-                LeftText(text: "To: " + ride.dropOffLocation!)
+            HStack(alignment: .top, spacing: 12) {
+                Circle()
+                    .fill(K.gold)
+                    .frame(width: 10, height: 10)
+                    .padding(.top, 4)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("TO")
+                        .font(.system(size: 10, weight: .semibold))
+                        .tracking(1.5)
+                        .foregroundColor(.white.opacity(0.4))
+                    Text(ride.dropOffLocation ?? "")
+                        .font(.system(size: 14))
+                        .foregroundColor(.white.opacity(0.9))
+                }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct PassengerOverviewSection: View {
+    let name: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Overline(text: "Passenger")
+            HStack(spacing: 12) {
+                Image(systemName: "person.fill")
+                    .font(.system(size: 15))
+                    .foregroundColor(K.gold)
+                Text(name)
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(.white.opacity(0.9))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 struct HourlyServiceOverviewSection: View {
-    @State var ride: Ride
-    
+    let ride: Ride
+
     var body: some View {
-        VStack(spacing: 30) {
-            LeftText(text: "Hourly Service")
-                .font(.system(size: 20))
-            LeftText(text: ride.note)
+        VStack(alignment: .leading, spacing: 14) {
+            Overline(text: "Hourly Service")
+            HStack(spacing: 12) {
+                Image(systemName: "clock.fill")
+                    .font(.system(size: 15))
+                    .foregroundColor(K.gold)
+                Text(ride.note)
+                    .font(.system(size: 15))
+                    .foregroundColor(.white.opacity(0.9))
+            }
         }
-        .padding(4)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 struct Overview_Previews: PreviewProvider {
-    @State static var r = Ride(time: Date(), pickUpLocation: "Home", dropOffLocation: "School", carType: .crluxury, price: 80)
-    @State static var ca: Card? = nil
-    @State static var c = Card(id: "ccof:CBASEN_JRXMyZjLGuZtb8gJMyd8", cardBrand: "VISA", last4: "1111", expMonth: 2, expYear: 2025, billingAddress: BillingAddress(postalCode: "22222"))
+    @State static var r = Ride(time: Date(), pickUpLocation: "Home", dropOffLocation: "School", carType: .crluxury)
     static var previews: some View {
-        NavigationView {
-            Overview(ride: $r, card: c)
+        NavigationStack {
+            Overview(ride: $r)
         }
     }
 }

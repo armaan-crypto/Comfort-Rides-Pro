@@ -2,195 +2,192 @@
 //  BookedRides.swift
 //  Comfort Rides Pro
 //
-//  Created by Armaan Ahmed on 6/11/23.
-//
 
 import SwiftUI
 
 struct BookedRides: View {
-    
-    @ObservedObject var ridesManager = RidesManager()
-    @State var errorMessage: String? = nil
-    @State var error: Error? = nil
-    
+
+    @StateObject private var ridesManager = RidesManager()
+    @State private var error: Error?
+
     var body: some View {
-        if ridesManager.loaded {
-            if ridesManager.bookedRides.count > 0 {
-                List(ridesManager.bookedRides) { ride in
-                    BookedRidesRow(ride: ride)
-                        .navigationTitle("Upcoming Rides")
-                        .overlay(alignment: .top) {
-                            if errorMessage != nil {
-                                ErrorView(error: $error, errorMessage: $errorMessage)
+        ZStack {
+            K.backgroundGradient
+                .ignoresSafeArea()
+
+            Group {
+                if ridesManager.loaded {
+                    if ridesManager.bookedRides.isEmpty {
+                        VStack(spacing: 16) {
+                            Image(systemName: "car.fill")
+                                .font(.system(size: 40))
+                                .foregroundColor(.white.opacity(0.15))
+                            Text("No upcoming rides")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(K.textDim)
+                        }
+                    } else {
+                        List {
+                            ForEach(ridesManager.bookedRides) { ride in
+                                BookedRidesRow(ride: ride)
+                                    .listRowBackground(Color.clear)
+                                    .listRowSeparator(.hidden)
+                                    .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
+                            }
+                            .onDelete { indexSet in
+                                Task { await ridesManager.cancelRides(at: indexSet) }
                             }
                         }
-                }
-            } else {
-                Text("No rides have been booked yet")
-                    .foregroundColor(Color(uiColor: UIColor.systemGray3))
-                    .bold()
-                    .navigationTitle("Upcoming Rides")
-                    .overlay(alignment: .top) {
-                        if errorMessage != nil {
-                            ErrorView(error: $error, errorMessage: $errorMessage)
-                        }
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
                     }
+                } else {
+                    ProgressView()
+                        .tint(K.gold)
+                }
             }
-        } else {
-            ProgressView()
-                .navigationTitle("Upcoming Rides")
-                .onAppear {
-                    Task {
-                        do {
-                            try await ridesManager.retrieve({ e in
-                                self.errorMessage = e
-                                ridesManager.loaded = true
-                            })
-                        } catch {
-                            self.error = error
-                            print(error)
-                            ridesManager.loaded = true
-                        }
-                    }
-                }
+        }
+        .navigationTitle("Upcoming Rides")
+        .overlay(alignment: .top) {
+            if let e = error {
+                ErrorView(error: $error, errorMessage: .constant(e.localizedDescription))
+            }
+        }
+        .task {
+            do {
+                try await ridesManager.retrieve()
+            } catch {
+                self.error = error
+                ridesManager.loaded = true
+            }
         }
     }
 }
 
 struct BookedRidesRow: View {
-    @State var ride: Ride
-    
+    let ride: Ride
+
     var body: some View {
-        VStack(spacing: 10) {
-            HStack {
-                Text(ride.carType!.rawValue)
-                    .bold()
-                Spacer()
-            }
-            HStack {
-                Text("From: " + ride.pickUpLocation!)
-                Spacer()
-            }
-            HStack {
-                Text("To: " + ride.dropOffLocation!)
-                Spacer()
-            }
-            HStack {
-                VStack {
-                    Spacer()
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(ride.carType?.rawValue ?? "")
+                        .font(.system(size: 18, weight: .semibold, design: .serif))
+                        .foregroundColor(.white)
                     Text(ride.formattedDate)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(K.gold)
                 }
                 Spacer()
-                VStack {
-                    Image(ride.carType!.rawValue)
+                if let carType = ride.carType {
+                    Image(carType.rawValue)
                         .resizable()
                         .scaledToFit()
-                        .frame(height: 50)
-                        .padding(.leading)
+                        .frame(height: 46)
+                        .shadow(color: .black.opacity(0.4), radius: 8, x: 0, y: 4)
+                }
+            }
+
+            Rectangle()
+                .fill(K.hairline)
+                .frame(height: 1)
+
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .top, spacing: 10) {
+                    Circle()
+                        .strokeBorder(K.gold, lineWidth: 1.5)
+                        .frame(width: 9, height: 9)
+                        .padding(.top, 4)
+                    Text(ride.pickUpLocation ?? "")
+                        .font(.system(size: 13))
+                        .foregroundColor(.white.opacity(0.75))
+                }
+                HStack(alignment: .top, spacing: 10) {
+                    Circle()
+                        .fill(K.gold)
+                        .frame(width: 9, height: 9)
+                        .padding(.top, 4)
+                    Text(ride.dropOffLocation ?? "")
+                        .font(.system(size: 13))
+                        .foregroundColor(.white.opacity(0.75))
                 }
             }
         }
-        .padding(5)
+        .padding(16)
+        .luxCard()
+    }
+}
+
+@MainActor
+class RidesManager: ObservableObject {
+    @Published var bookedRides: [Ride] = []
+    @Published var loaded = false
+
+    func retrieve() async throws {
+        let rows = try await BookingService().fetchUpcomingReservations()
+        bookedRides = rows.map { row in
+            Ride(
+                id: row.id,
+                reservationId: row.id,
+                time: row.pickupAt,
+                pickUpLocation: row.pickupLocation,
+                dropOffLocation: row.dropoffLocation,
+                carType: CarType(supabaseId: row.carTypeId),
+                layover: row.standbyHours,
+                note: row.note
+            )
+        }
+        loaded = true
+    }
+
+    func cancelRides(at indexSet: IndexSet) async {
+        for index in indexSet {
+            let ride = bookedRides[index]
+            guard let reservationId = ride.reservationId else { continue }
+            do {
+                try await BookingService().cancelReservation(id: reservationId)
+                bookedRides.remove(at: index)
+            } catch {
+                print("Cancel failed: \(error)")
+            }
+        }
+    }
+}
+
+struct ErrorView: View {
+    @Binding var error: Error?
+    @Binding var errorMessage: String?
+
+    var body: some View {
+        if let msg = errorMessage {
+            VStack(spacing: 14) {
+                Text(msg)
+                    .font(.system(size: 14, weight: .semibold))
+                    .multilineTextAlignment(.center)
+                Button("Dismiss") {
+                    error = nil
+                    errorMessage = nil
+                }
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(K.gold)
+            }
+            .padding(18)
+            .foregroundColor(.white)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color(red: 0.45, green: 0.12, blue: 0.14))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
+            )
+            .padding(.horizontal, 20)
+        }
     }
 }
 
 struct BookedRides_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
-            BookedRides()
-        }
-    }
-}
-
-class RidesManager: ObservableObject {
-    @Published var bookedRides = [Ride]()
-    @Published var loaded = false
-    init() {
-        bookedRides = []
-    }
-    
-    func retrieve(_ hadError: ((String) -> Void)) async throws {
-        var request = URLRequest(url: URL(string: "https://connect.\(K.keyword).com/v2/bookings")!,timeoutInterval: Double.infinity)
-        request.addValue("2023-06-08", forHTTPHeaderField: "Square-Version")
-        request.addValue("Bearer \(K.key)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        request.httpMethod = "GET"
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard (response as! HTTPURLResponse).statusCode >= 200 else { hadError("Error retrieving rides"); return }
-        let rideResponse = try JSONDecoder().decode(RideResponse.self, from: data)
-        DispatchQueue.main.async {
-            self.loaded = true
-        }
-        for r in rideResponse.bookings {
-            if r.customerID == UserDefaults.standard.string(forKey: U.userId) ?? "" {
-                if r.status.contains("ACCEPTED") {
-                    if let s = r.start, Date.now.timeIntervalSince1970 < s.timeIntervalSince1970 {
-                        DispatchQueue.main.async {
-                            withAnimation {
-                                self.bookedRides.append(self.getRide(from: r))
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    func getRide(from booking: BookingResponseData) -> Ride {
-        var pickUp = "Booked from website"
-        var dropOff = ""
-        if let note = booking.customerNote {
-            pickUp = String(String(note.split(separator: "Pickup location: ")[1]).split(separator: ". Drop off location")[0])
-            dropOff = String(note.split(separator: "Drop off location: ")[1])
-        }
-        let carType = CarType(serviceId: booking.appointmentSegments[0].serviceVariationID)
-        // TODO: If booking.start is nil show error
-        return Ride(time: booking.start!, pickUpLocation: pickUp, dropOffLocation: dropOff, carType: carType, price: Int(String(carType.price(booking.appointmentSegments[0].durationMinutes / 60).split(separator: "$")[0])) ?? 0, locationId: nil)
-    }
-}
-
-struct ErrorView: View {
-    
-    @Binding var error: Error?
-    @Binding var errorMessage: String?
-
-    var body: some View {
-        if let error = error {
-            VStack {
-                Text(error.localizedDescription)
-                    .bold()
-                Spacer()
-                    .frame(height: 30)
-                HStack {
-                    Button("Dismiss") {
-                        self.error = nil
-                    }
-                    .fontWeight(.bold)
-                }
-            }
-            .padding()
-            .background(Color.red)
-            .foregroundColor(.white)
-            .cornerRadius(10)
-        }
-        if let errorMessage = errorMessage {
-            VStack {
-                Text(errorMessage)
-                    .bold()
-                Spacer()
-                    .frame(height: 30)
-                HStack {
-                    Button("Dismiss") {
-                        self.errorMessage = nil
-                    }
-                    .fontWeight(.bold)
-                }
-            }
-            .padding()
-            .background(Color.red)
-            .foregroundColor(.white)
-            .cornerRadius(10)
-        }
+        NavigationStack { BookedRides() }
     }
 }
