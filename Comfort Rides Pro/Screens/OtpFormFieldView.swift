@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import Combine
 import Supabase
 
 struct OtpFormFieldView: View {
@@ -14,144 +13,101 @@ struct OtpFormFieldView: View {
     let lastName: String
     var phone: String = ""
 
-    enum FocusPin { case p1, p2, p3, p4, p5, p6, p7, p8 }
+    private let codeLength = 8
 
-    @FocusState private var focus: FocusPin?
-    @State private var p1 = ""
-    @State private var p2 = ""
-    @State private var p3 = ""
-    @State private var p4 = ""
-    @State private var p5 = ""
-    @State private var p6 = ""
-    @State private var p7 = ""
-    @State private var p8 = ""
+    @FocusState private var isFocused: Bool
+    @State private var otpCode = ""
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var resent = false
 
-    private var otp: String { p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 }
-
     var body: some View {
         ZStack {
-            K.backgroundGradient
-                .ignoresSafeArea()
+            K.backgroundGradient.ignoresSafeArea()
 
-            VStack(spacing: 24) {
-            Spacer()
-            Overline(text: "Verification")
-            SerifHeading(text: "Verify your Email", size: 28)
-            Text("Enter the 8-digit code sent to \(email)")
-                .font(.system(size: 13))
-                .foregroundColor(K.textDim)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
+            VStack(spacing: 36) {
+                Spacer()
 
-            HStack(spacing: 6) {
-                TextField("", text: $p1)
-                    .modifier(OtpModifer(pin: $p1))
-                    .focused($focus, equals: .p1)
-                    .onChange(of: p1, perform: { v in if v.count == 1 { focus = .p2 } })
+                VStack(spacing: 12) {
+                    Overline(text: "Verification")
+                    SerifHeading(text: "Check your email", size: 26)
+                    Text("Enter the \(codeLength)-digit code sent to\n\(email)")
+                        .font(.system(size: 14))
+                        .foregroundColor(K.textDim)
+                        .multilineTextAlignment(.center)
+                }
 
-                TextField("", text: $p2)
-                    .modifier(OtpModifer(pin: $p2))
-                    .focused($focus, equals: .p2)
-                    .onChange(of: p2, perform: { v in
-                        if v.count == 1 { focus = .p3 }
-                        else if v.isEmpty { focus = .p1 }
-                    })
+                // Single hidden field + visual digit boxes
+                ZStack {
+                    TextField("", text: $otpCode)
+                        .keyboardType(.numberPad)
+                        .textContentType(.oneTimeCode)
+                        .focused($isFocused)
+                        .frame(width: 1, height: 1)
+                        .opacity(0.001)
+                        .onChange(of: otpCode, perform: { value in
+                            let filtered = String(value.filter(\.isNumber).prefix(codeLength))
+                            if otpCode != filtered { otpCode = filtered }
+                            if filtered.count == codeLength { Task { await verify() } }
+                        })
 
-                TextField("", text: $p3)
-                    .modifier(OtpModifer(pin: $p3))
-                    .focused($focus, equals: .p3)
-                    .onChange(of: p3, perform: { v in
-                        if v.count == 1 { focus = .p4 }
-                        else if v.isEmpty { focus = .p2 }
-                    })
+                    HStack(spacing: 8) {
+                        ForEach(0..<codeLength, id: \.self) { index in
+                            OtpDigitBox(
+                                digit: digit(at: index),
+                                isActive: isFocused && index == min(otpCode.count, codeLength - 1)
+                            )
+                        }
+                    }
+                    .onTapGesture { isFocused = true }
+                }
 
-                TextField("", text: $p4)
-                    .modifier(OtpModifer(pin: $p4))
-                    .focused($focus, equals: .p4)
-                    .onChange(of: p4, perform: { v in
-                        if v.count == 1 { focus = .p5 }
-                        else if v.isEmpty { focus = .p3 }
-                    })
+                if let err = errorMessage {
+                    Text(err)
+                        .font(.system(size: 13))
+                        .foregroundColor(.red.opacity(0.85))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
 
-                TextField("", text: $p5)
-                    .modifier(OtpModifer(pin: $p5))
-                    .focused($focus, equals: .p5)
-                    .onChange(of: p5, perform: { v in
-                        if v.count == 1 { focus = .p6 }
-                        else if v.isEmpty { focus = .p4 }
-                    })
+                CTALabel(title: "Verify", enabled: otpCode.count == codeLength, loading: isLoading)
+                    .onTapGesture { if otpCode.count == codeLength && !isLoading { Task { await verify() } } }
+                    .padding(.horizontal, 28)
 
-                TextField("", text: $p6)
-                    .modifier(OtpModifer(pin: $p6))
-                    .focused($focus, equals: .p6)
-                    .onChange(of: p6, perform: { v in
-                        if v.count == 1 { focus = .p7 }
-                        else if v.isEmpty { focus = .p5 }
-                    })
+                Button {
+                    Task { await resend() }
+                } label: {
+                    Text(resent ? "Code resent ✓" : "Resend code")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(resent ? .green : K.gold)
+                }
+                .disabled(resent || isLoading)
 
-                TextField("", text: $p7)
-                    .modifier(OtpModifer(pin: $p7))
-                    .focused($focus, equals: .p7)
-                    .onChange(of: p7, perform: { v in
-                        if v.count == 1 { focus = .p8 }
-                        else if v.isEmpty { focus = .p6 }
-                    })
-
-                TextField("", text: $p8)
-                    .modifier(OtpModifer(pin: $p8))
-                    .focused($focus, equals: .p8)
-                    .onChange(of: p8, perform: { v in
-                        if v.isEmpty { focus = .p7 }
-                    })
+                Spacer()
             }
-            .padding(.vertical)
-
-            if let err = errorMessage {
-                Text(err)
-                    .foregroundColor(Color(red: 0.94, green: 0.52, blue: 0.5))
-                    .font(.caption)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
-
-            Button {
-                Task { await verify() }
-            } label: {
-                CTALabel(title: "Verify", enabled: otp.count == 8 && !isLoading, loading: isLoading)
-            }
-            .disabled(otp.count < 8 || isLoading)
-            .padding(.horizontal)
-
-            Button {
-                Task { await resend() }
-            } label: {
-                Text(resent ? "Code resent ✓" : "Resend code")
-                    .font(.footnote)
-                    .foregroundColor(resent ? .green : K.gold)
-            }
-            .disabled(resent)
-
-            Spacer()
-            }
-            .padding()
         }
         .navigationTitle("Verification")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { focus = .p1 }
+        .onAppear { isFocused = true }
+    }
+
+    private func digit(at index: Int) -> String {
+        guard index < otpCode.count else { return "" }
+        return String(otpCode[otpCode.index(otpCode.startIndex, offsetBy: index)])
     }
 
     private func verify() async {
+        guard !isLoading else { return }
         isLoading = true
         errorMessage = nil
         do {
-            try await supabase.auth.verifyOTP(email: email, token: otp, type: .email)
+            try await supabase.auth.verifyOTP(email: email, token: otpCode, type: .email)
             try await BookingService().saveProfile(firstName: firstName, lastName: lastName, phone: phone)
             // ContentView's authStateChanges listener handles navigation automatically
         } catch {
             errorMessage = error.localizedDescription
+            otpCode = ""
+            isFocused = true
         }
         isLoading = false
     }
@@ -163,6 +119,35 @@ struct OtpFormFieldView: View {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+}
+
+private struct OtpDigitBox: View {
+    let digit: String
+    let isActive: Bool
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(K.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .strokeBorder(isActive ? K.gold : K.hairline, lineWidth: isActive ? 1.5 : 1)
+                )
+
+            if digit.isEmpty {
+                if isActive {
+                    Rectangle()
+                        .fill(K.gold)
+                        .frame(width: 1.5, height: 20)
+                }
+            } else {
+                Text(digit)
+                    .font(.system(size: 20, weight: .semibold, design: .monospaced))
+                    .foregroundColor(.white)
+            }
+        }
+        .frame(width: 36, height: 46)
     }
 }
 
