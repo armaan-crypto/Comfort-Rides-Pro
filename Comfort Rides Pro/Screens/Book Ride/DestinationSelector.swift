@@ -28,6 +28,12 @@ struct DestinationSelector: View {
     @State var isError = false
     @State var error = ""
     @State var layover = 1
+    @State private var carTypeRates: [String: Int] = [:]   // supabaseId → hourly_rate_cents
+
+    var suvRateLabel: String {
+        if let cents = carTypeRates["suv"] { return "$\(cents / 100)/hr" }
+        return "$85/hr"
+    }
 
     var body: some View {
         ZStack {
@@ -54,7 +60,7 @@ struct DestinationSelector: View {
 //                            ride.carType = .crsedan
 //                            F.vibrate(.heavy)
 //                        }
-                        CarSelectorItem(carType: .crluxury, isSelected: $secondSelected)
+                        CarSelectorItem(carType: .crluxury, isSelected: $secondSelected, rateLabel: suvRateLabel)
                             .onTapGesture {
                                 firstSelected = false
                                 secondSelected = true
@@ -92,6 +98,11 @@ struct DestinationSelector: View {
                     NavigationLink(destination: Overview(ride: $ride), isActive: $advance) { EmptyView() }
                 }
                 .padding(20)
+            }
+        }
+        .task {
+            if let rows = try? await BookingService().fetchCarTypes() {
+                carTypeRates = Dictionary(uniqueKeysWithValues: rows.map { ($0.id, $0.hourlyRateCents) })
             }
         }
         .onAppear(perform: {
@@ -132,7 +143,7 @@ struct HourlyServiceView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            LeftText(text: "If you would like your driver to stay on standby, select the length of your booking. Your driver will stay on standby for you during your booked hours. Charged by the hour.\n\n$150/hour - Private SUV.")
+            LeftText(text: "If you would like your driver to stay on standby, select the length of your booking. Your driver will stay on standby for you during your booked hours. Charged by the hour.\n\n$150/hr.")
                 .font(.system(size: 13))
                 .foregroundColor(K.textDim)
             Menu {
@@ -179,15 +190,16 @@ struct CarSelectorItem: View {
 
     @State var carType: CarType
     @Binding var isSelected: Bool
+    var rateLabel: String? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(carType.title())
-                        .font(.system(size: 21, weight: .semibold, design: .serif))
+                        .font(.system(size: 21, weight: .semibold))
                         .foregroundColor(.white)
-                    Text(carType.price(1))
+                    Text(rateLabel ?? carType.price(1))
                         .font(.system(size: 13, weight: .semibold))
                         .tracking(0.5)
                         .foregroundColor(K.gold)

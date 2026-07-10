@@ -41,6 +41,7 @@ struct StartingScreen: View {
                                 .padding([.bottom, .horizontal], 8)
                         }
                         .luxCard()
+                        .padding(.horizontal)
 
                         NavigationLink {
                             DestinationSelector(ride: $ride)
@@ -48,6 +49,7 @@ struct StartingScreen: View {
                             CTALabel(title: "Schedule Ride")
                         }
                         .simultaneousGesture(TapGesture().onEnded { ride.time = date })
+                        .padding(.horizontal)
 
                         Spacer().frame(height: 8)
                     }

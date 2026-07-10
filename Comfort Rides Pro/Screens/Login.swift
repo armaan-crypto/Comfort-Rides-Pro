@@ -33,7 +33,7 @@ struct Login: View {
                             .frame(width: 44, height: 1)
 
                         Text("Private luxury transportation")
-                            .font(.system(size: 16, weight: .regular, design: .serif).italic())
+                            .font(.system(size: 16, weight: .regular))
                             .tracking(0.5)
                             .foregroundColor(.white.opacity(0.65))
                     }

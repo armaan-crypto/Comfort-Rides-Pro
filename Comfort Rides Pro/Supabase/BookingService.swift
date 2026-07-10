@@ -131,6 +131,17 @@ struct BookingService {
             .execute()
     }
 
+    func fetchCarTypes() async throws -> [CarTypeRow] {
+        let rows: [CarTypeRow] = try await supabase
+            .from("car_types")
+            .select()
+            .eq("active", value: true)
+            .order("sort_order", ascending: true)
+            .execute()
+            .value
+        return rows
+    }
+
     func fetchUpcomingReservations() async throws -> [ReservationRow] {
         let userId = try await supabase.auth.session.user.id
         let now = ISO8601DateFormatter().string(from: Date())

@@ -56,7 +56,7 @@ struct SerifHeading: View {
     var size: CGFloat = 26
     var body: some View {
         Text(text)
-            .font(.system(size: size, weight: .semibold, design: .serif))
+            .font(.system(size: size, weight: .semibold))
             .foregroundColor(.white)
     }
 }

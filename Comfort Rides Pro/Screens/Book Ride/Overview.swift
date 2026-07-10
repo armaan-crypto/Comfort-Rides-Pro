@@ -51,6 +51,17 @@ struct Overview: View {
                             .luxCard()
                     }
 
+                    HStack(spacing: 10) {
+                        Image(systemName: "banknote")
+                            .font(.system(size: 14))
+                            .foregroundColor(K.gold)
+                        Text("Payment is collected in-vehicle at the end of your ride.")
+                            .font(.system(size: 13))
+                            .foregroundColor(K.textDim)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding(.horizontal, 4)
+
                     Button {
                         bookRide()
                     } label: {
@@ -135,7 +146,7 @@ struct CarTypeOverviewSection: View {
         VStack(alignment: .leading, spacing: 14) {
             Overline(text: "Vehicle")
             Text(carType.title())
-                .font(.system(size: 22, weight: .semibold, design: .serif))
+                .font(.system(size: 22, weight: .semibold))
                 .foregroundColor(.white)
             VStack(alignment: .leading, spacing: 7) {
                 ForEach(carType.description1(), id: \.self) { d in

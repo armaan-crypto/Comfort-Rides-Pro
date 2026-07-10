@@ -72,7 +72,7 @@ struct BookedRidesRow: View {
             HStack(alignment: .center, spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(ride.carType?.rawValue ?? "")
-                        .font(.system(size: 18, weight: .semibold, design: .serif))
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
                     Text(ride.formattedDate)
                         .font(.system(size: 13, weight: .semibold))
