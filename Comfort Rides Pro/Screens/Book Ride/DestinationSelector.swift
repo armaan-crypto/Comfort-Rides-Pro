@@ -31,8 +31,8 @@ struct DestinationSelector: View {
     @State private var carTypeRates: [String: Int] = [:]   // supabaseId → hourly_rate_cents
 
     var suvRateLabel: String {
-        if let cents = carTypeRates["suv"] { return "$\(cents / 100)/hr" }
-        return "$85/hr"
+        if let cents = carTypeRates["suv"] { return "$\(cents / 100)" }
+        return "$85"
     }
 
     var body: some View {
@@ -43,14 +43,23 @@ struct DestinationSelector: View {
             ScrollView {
                 VStack(spacing: 28) {
                     VStack(spacing: 14) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Overline(text: "Where to?")
+                            SerifHeading(text: "Enter Locations", size: 24)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         LocationSelector(ride: $ride, placeholder: "Pickup Location", address: $pickupAddress, text: $pickupAddress, isShowing: $showing1, placemark: $pickUpPlacemark)
                         LocationSelector(ride: $ride, placeholder: "Destination", address: $whereToAddress, text: $whereToText, isShowing: $showing, placemark: $dropOffPlacemark)
                     }
+                    
+                    Rectangle()
+                        .fill(K.hairline)
+                        .frame(height: 1)
 
                     VStack(alignment: .leading, spacing: 16) {
                         VStack(alignment: .leading, spacing: 4) {
                             Overline(text: "Your vehicle")
-                            SerifHeading(text: "Select Ride")
+                            SerifHeading(text: "Select Ride", size: 24)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
 //                    CarSelectorItem(carType: .crsedan, isSelected: $firstSelected)
@@ -76,7 +85,7 @@ struct DestinationSelector: View {
                     VStack(alignment: .leading, spacing: 16) {
                         VStack(alignment: .leading, spacing: 4) {
                             Overline(text: "Driver standby")
-                            SerifHeading(text: "Hourly Service")
+                            SerifHeading(text: "Hourly Service", size: 24)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         HourlyServiceView(selected: $layover)
@@ -118,8 +127,6 @@ struct DestinationSelector: View {
                 secondSelected = true
             }
         })
-        .navigationTitle("Enter Locations")
-        .navigationBarTitleDisplayMode(.large)
         .toast(isPresenting: $isUploading) {
             AlertToast(type: .loading, title: "")
         }
@@ -143,7 +150,7 @@ struct HourlyServiceView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            LeftText(text: "If you would like your driver to stay on standby, select the length of your booking. Your driver will stay on standby for you during your booked hours. Charged by the hour.\n\n$150/hr.")
+            LeftText(text: "If you would like your driver to stay on standby, select the length of your booking. Your driver will stay on standby for you during your desired booking hours. Charged by the hour.\n\n$150/hr")
                 .font(.system(size: 13))
                 .foregroundColor(K.textDim)
             Menu {
@@ -199,10 +206,6 @@ struct CarSelectorItem: View {
                     Text(carType.title())
                         .font(.system(size: 21, weight: .semibold))
                         .foregroundColor(.white)
-                    Text(rateLabel ?? carType.price(1))
-                        .font(.system(size: 13, weight: .semibold))
-                        .tracking(0.5)
-                        .foregroundColor(K.gold)
                 }
                 Spacer()
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
@@ -228,6 +231,10 @@ struct CarSelectorItem: View {
             }
 
             HStack {
+                Text(rateLabel ?? carType.price(1))
+                    .font(.system(size: 13, weight: .semibold))
+                    .tracking(0.5)
+                    .foregroundColor(K.gold)
                 Spacer()
                 Image(uiImage: UIImage(named: carType.rawValue)!)
                     .resizable()
@@ -331,25 +338,28 @@ struct BetterTextField: View {
     @State var onClick: (() -> Void)
 
     var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(K.gold)
-            TextField("", text: $enteredText, prompt: Text(placeholder).foregroundColor(.white.opacity(0.35)))
-                .foregroundColor(.white)
-                .tint(K.gold)
-                .onTapGesture(perform: onClick)
-            Spacer(minLength: 0)
+        Button(action: onClick) {
+            HStack(spacing: 10) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(K.gold)
+                Text(enteredText.isEmpty ? placeholder : enteredText)
+                    .foregroundColor(enteredText.isEmpty ? .white.opacity(0.35) : .white)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 16)
+            .frame(height: 54)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(K.surface)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(K.hairline, lineWidth: 1)
+            )
         }
-        .padding(.horizontal, 16)
-        .frame(height: 54)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(K.surface)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .strokeBorder(K.hairline, lineWidth: 1)
-        )
+        .buttonStyle(.plain)
     }
 }
 

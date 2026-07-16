@@ -67,7 +67,6 @@ enum CarType: String, Identifiable {
             return [
                 "Cadillac Escalade ESV or similar",
                 "Holds 6 passengers • 6 luggage",
-                "Drinks are provided and are all inclusive",
                 "Free Cancellation up to 24 hrs before pickup time",
                 "30 minutes of wait time included on every ride."
             ]

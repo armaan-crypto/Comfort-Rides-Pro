@@ -29,13 +29,19 @@ struct BookedRides: View {
                     } else {
                         List {
                             ForEach(ridesManager.bookedRides) { ride in
-                                BookedRidesRow(ride: ride)
-                                    .listRowBackground(Color.clear)
-                                    .listRowSeparator(.hidden)
-                                    .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
-                            }
-                            .onDelete { indexSet in
-                                Task { await ridesManager.cancelRides(at: indexSet) }
+                                BookedRidesRow(ride: ride) {
+                                    Task { await ridesManager.cancelRide(ride) }
+                                }
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        Task { await ridesManager.cancelRide(ride) }
+                                    } label: {
+                                        Label("Cancel", systemImage: "xmark")
+                                    }
+                                }
                             }
                         }
                         .listStyle(.plain)
@@ -66,6 +72,7 @@ struct BookedRides: View {
 
 struct BookedRidesRow: View {
     let ride: Ride
+    var onCancel: (() -> Void)? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -86,6 +93,20 @@ struct BookedRidesRow: View {
                         .frame(height: 46)
                         .shadow(color: .black.opacity(0.4), radius: 8, x: 0, y: 4)
                 }
+                Menu {
+                    Button(role: .destructive) {
+                        onCancel?()
+                    } label: {
+                        Label("Cancel Ride", systemImage: "xmark.circle")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(K.gold)
+                        .frame(width: 32, height: 32)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
             }
 
             Rectangle()
@@ -140,16 +161,13 @@ class RidesManager: ObservableObject {
         loaded = true
     }
 
-    func cancelRides(at indexSet: IndexSet) async {
-        for index in indexSet {
-            let ride = bookedRides[index]
-            guard let reservationId = ride.reservationId else { continue }
-            do {
-                try await BookingService().cancelReservation(id: reservationId)
-                bookedRides.remove(at: index)
-            } catch {
-                print("Cancel failed: \(error)")
-            }
+    func cancelRide(_ ride: Ride) async {
+        guard let reservationId = ride.reservationId else { return }
+        do {
+            try await BookingService().cancelReservation(id: reservationId)
+            bookedRides.removeAll { $0.id == ride.id }
+        } catch {
+            print("Cancel failed: \(error)")
         }
     }
 }

@@ -26,17 +26,6 @@ struct Login: View {
                         .frame(width: 132)
                         .cornerRadius(28)
                         .shadow(color: .black.opacity(0.5), radius: 24, x: 0, y: 12)
-
-                    VStack(spacing: 16) {
-                        Rectangle()
-                            .fill(K.gold)
-                            .frame(width: 44, height: 1)
-
-                        Text("Private luxury transportation")
-                            .font(.system(size: 16, weight: .regular))
-                            .tracking(0.5)
-                            .foregroundColor(.white.opacity(0.65))
-                    }
                 }
 
                 Spacer()

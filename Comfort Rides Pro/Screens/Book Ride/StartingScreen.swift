@@ -14,6 +14,20 @@ struct StartingScreen: View {
     @State private var navigateTo: AnyView = AnyView(EmptyView())
     @State private var profile: ProfileRow? = nil
 
+    private var greeting: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        let timeOfDay: String
+        switch hour {
+        case 5..<12: timeOfDay = "morning"
+        case 12..<17: timeOfDay = "afternoon"
+        default: timeOfDay = "evening"
+        }
+        if let first = profile?.firstName?.trimmingCharacters(in: .whitespaces), !first.isEmpty {
+            return "Good \(timeOfDay), \(first)"
+        }
+        return "Good \(timeOfDay)"
+    }
+
     var body: some View {
         ZStack {
             K.backgroundGradient
@@ -25,8 +39,8 @@ struct StartingScreen: View {
 
                     VStack(alignment: .leading, spacing: 24) {
                         VStack(alignment: .leading, spacing: 6) {
-                            Overline(text: "Private")
-                            SerifHeading(text: "Where to next?", size: 30)
+                            Overline(text: greeting)
+                            SerifHeading(text: "Where to next?", size: 24)
                         }
                         .padding(.leading)
 
@@ -62,7 +76,6 @@ struct StartingScreen: View {
         .background(
             NavigationLink(destination: navigateTo, isActive: $isActive) { EmptyView() }
         )
-        .navigationTitle("Private")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { UIDatePicker.appearance().minuteInterval = 30 }
         .task {
