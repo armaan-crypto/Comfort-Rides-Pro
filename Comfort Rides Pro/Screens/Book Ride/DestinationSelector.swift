@@ -163,9 +163,13 @@ struct HourlyServiceView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            LeftText(text: "If you would like your driver to stay on standby, select the length of your booking. Your driver will stay on standby for you during your desired booking hours. Charged by the hour.\n\n\(hourlyRateDisplay)")
+            LeftText(text: "If you would like your driver to stay on standby, select the length of your booking. Your driver will stay on standby for you during your desired booking hours. Charged by the hour.")
                 .font(.system(size: 13))
                 .foregroundColor(K.textDim)
+            HStack {
+                Overline(text: "\(hourlyRateDisplay) • 2 hour booking minimum")
+                Spacer()
+            }
             Menu {
                 Button("None") {
                     text = "None"

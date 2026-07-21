@@ -477,7 +477,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Comfort Rides Pro/Preview Content\"";
-				DEVELOPMENT_TEAM = ZGVKCP72NR;
+				DEVELOPMENT_TEAM = AX6YCS55LP;
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -500,7 +500,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.4.3;
+				MARKETING_VERSION = 3.1.2;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "armaanahmed.Comfort-Rides-Pro";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -523,7 +523,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Comfort Rides Pro/Preview Content\"";
-				DEVELOPMENT_TEAM = ZGVKCP72NR;
+				DEVELOPMENT_TEAM = AX6YCS55LP;
 				ENABLE_PREVIEWS = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -546,7 +546,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.4.3;
+				MARKETING_VERSION = 3.1.2;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "armaanahmed.Comfort-Rides-Pro";
 				PRODUCT_NAME = "$(TARGET_NAME)";
