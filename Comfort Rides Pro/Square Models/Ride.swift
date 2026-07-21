@@ -67,7 +67,8 @@ enum CarType: String, Identifiable {
             return [
                 "Cadillac Escalade ESV or similar",
                 "Holds 6 passengers • 6 luggage",
-                "Free Cancellation up to 24 hrs before pickup time",
+                "All drivers are fully trained and licensed",
+//                "Free Cancellation up to 24 hrs before pickup time", - "x.circle"
                 "30 minutes of wait time included on every ride."
             ]
         }
@@ -76,7 +77,7 @@ enum CarType: String, Identifiable {
     func images() -> [String] {
         switch self {
         case .crsedan: return ["car.fill", "person.fill", "x.circle", "clock.fill"]
-        case .crluxury: return ["car.fill", "person.fill", "wineglass.fill", "x.circle", "clock.fill"]
+        case .crluxury: return ["car.fill", "person.fill", "checkmark.square", "clock.fill"]
         }
     }
 

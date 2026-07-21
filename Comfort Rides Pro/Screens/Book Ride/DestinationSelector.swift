@@ -88,7 +88,7 @@ struct DestinationSelector: View {
                             SerifHeading(text: "Hourly Service", size: 24)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        HourlyServiceView(selected: $layover)
+                        HourlyServiceView(selected: $layover, carType: ride.carType, hourlyRateCents: carTypeRates[ride.carType?.supabaseId ?? ""])
                     }
 
                     Button {
@@ -147,10 +147,23 @@ struct HourlyServiceView: View {
 
     @Binding var selected: Int
     @State var text = "None"
+    var carType: CarType? = nil
+    var hourlyRateCents: Int? = nil
+
+    private func hourlyLabel(_ hours: Int) -> String {
+        guard let cents = hourlyRateCents else { return "\(hours) hours" }
+        let total = (150) * hours
+        return "\(hours) hours - $\(total)"
+    }
+
+    private var hourlyRateDisplay: String {
+        if let cents = hourlyRateCents { return "$\(cents / 100)/hr" }
+        return "$150/hr"
+    }
 
     var body: some View {
         VStack(spacing: 16) {
-            LeftText(text: "If you would like your driver to stay on standby, select the length of your booking. Your driver will stay on standby for you during your desired booking hours. Charged by the hour.\n\n$150/hr")
+            LeftText(text: "If you would like your driver to stay on standby, select the length of your booking. Your driver will stay on standby for you during your desired booking hours. Charged by the hour.\n\n\(hourlyRateDisplay)")
                 .font(.system(size: 13))
                 .foregroundColor(K.textDim)
             Menu {
@@ -160,10 +173,10 @@ struct HourlyServiceView: View {
                 }
                 ForEach(2...24, id: \.self) { i in
                     Button {
-                        text = "\(i) hours"
+                        text = hourlyLabel(i)
                         selected = i
                     } label: {
-                        Text(String(i) + " hours")
+                        Text(hourlyLabel(i))
                     }
                 }
             } label: {
@@ -204,7 +217,7 @@ struct CarSelectorItem: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(carType.title())
-                        .font(.system(size: 21, weight: .semibold))
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
                 }
                 Spacer()

@@ -16,6 +16,23 @@ struct Overview: View {
     @State private var enabled = true
     @State private var advance = false
     @State private var passengerName: String = ""
+    @State private var hourlyRateCents: Int? = nil
+
+    private var estimatedCost: String {
+        guard let carType = ride.carType else { return "—" }
+        if ride.layover <= 1 {
+            switch carType {
+            case .crsedan: return "$100"
+            case .crluxury:
+                if let cents = hourlyRateCents { return "$\(cents / 100)" }
+                return "Contact for pricing"
+            }
+        } else {
+//            let rate = hourlyRateCents.map { $0 / 100 } ?? (carType == .crsedan ? 75 : 150)
+            let rate = 150
+            return "$\(rate * ride.layover)"
+        }
+    }
 
     var body: some View {
         ZStack {
@@ -34,6 +51,9 @@ struct Overview: View {
                     CarTypeOverviewSection(carType: ride.carType!)
                         .padding(18)
                         .luxCard()
+                    PaymentOverviewSection(estimatedCost: estimatedCost)
+                        .padding(18)
+                        .luxCard()
                     TimeOverviewSection(ride: $ride)
                         .padding(18)
                         .luxCard()
@@ -50,17 +70,6 @@ struct Overview: View {
                             .padding(18)
                             .luxCard()
                     }
-
-                    HStack(spacing: 10) {
-                        Image(systemName: "banknote")
-                            .font(.system(size: 14))
-                            .foregroundColor(K.gold)
-                        Text("Payment is collected in-vehicle at the end of your ride.")
-                            .font(.system(size: 13))
-                            .foregroundColor(K.textDim)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .padding(.horizontal, 4)
 
                     Button {
                         bookRide()
@@ -90,6 +99,10 @@ struct Overview: View {
         .task {
             if let profile = try? await BookingService().fetchProfile() {
                 passengerName = profile.fullName
+            }
+            if let rows = try? await BookingService().fetchCarTypes(),
+               let carType = ride.carType {
+                hourlyRateCents = rows.first(where: { $0.id == carType.supabaseId })?.hourlyRateCents
             }
         }
         .navigationTitle("Ride Overview")
@@ -248,6 +261,29 @@ struct PassengerOverviewSection: View {
                     .font(.system(size: 15, weight: .medium))
                     .foregroundColor(.white.opacity(0.9))
             }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct PaymentOverviewSection: View {
+    let estimatedCost: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Overline(text: "Payment")
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text("Est.")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white.opacity(0.65))
+                Text(estimatedCost)
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.white)
+            }
+            Text("Estimate is subject to change based on the actual duration of your ride. Payment is collected in-vehicle.")
+                .font(.system(size: 12))
+                .foregroundColor(K.textDim)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
