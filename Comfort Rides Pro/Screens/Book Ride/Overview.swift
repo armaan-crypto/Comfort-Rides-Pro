@@ -16,6 +16,7 @@ struct Overview: View {
     @State private var enabled = true
     @State private var advance = false
     @State private var passengerName: String = ""
+    @State private var passengerNote: String = ""
     @State private var hourlyRateCents: Int? = nil
 
     private var estimatedCost: String {
@@ -25,7 +26,7 @@ struct Overview: View {
             case .crsedan: return "$100"
             case .crluxury:
                 if let cents = hourlyRateCents { return "$\(cents / 100)" }
-                return "Contact for pricing"
+                return ""
             }
         } else {
 //            let rate = hourlyRateCents.map { $0 / 100 } ?? (carType == .crsedan ? 75 : 150)
@@ -71,6 +72,10 @@ struct Overview: View {
                             .luxCard()
                     }
 
+                    NotesOverviewSection(note: $passengerNote)
+                        .padding(18)
+                        .luxCard()
+
                     Button {
                         bookRide()
                     } label: {
@@ -102,7 +107,9 @@ struct Overview: View {
             }
             if let rows = try? await BookingService().fetchCarTypes(),
                let carType = ride.carType {
-                hourlyRateCents = rows.first(where: { $0.id == carType.supabaseId })?.hourlyRateCents
+                withAnimation {
+                    hourlyRateCents = rows.first(where: { $0.id == carType.supabaseId })?.hourlyRateCents
+                }
             }
         }
         .navigationTitle("Ride Overview")
@@ -112,9 +119,14 @@ struct Overview: View {
     private func bookRide() {
         enabled = false
         isUploading = true
+        var rideToBook = ride
+        let trimmedNote = passengerNote.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedNote.isEmpty {
+            rideToBook.note = ride.note.isEmpty ? trimmedNote : "\(ride.note)\(trimmedNote)"
+        }
         Task {
             do {
-                try await BookingService().createReservation(ride: ride)
+                try await BookingService().createReservation(ride: rideToBook)
                 isUploading = false
                 posted = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -261,6 +273,31 @@ struct PassengerOverviewSection: View {
                     .font(.system(size: 15, weight: .medium))
                     .foregroundColor(.white.opacity(0.9))
             }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct NotesOverviewSection: View {
+    @Binding var note: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Overline(text: "Notes")
+            TextField("", text: $note, prompt: Text("Add a note for your driver (optional)").foregroundColor(.white.opacity(0.35)), axis: .vertical)
+                .lineLimit(3...6)
+                .font(.system(size: 15))
+                .foregroundColor(.white)
+                .tint(K.gold)
+                .padding(14)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(K.surface)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(K.hairline, lineWidth: 1)
+                )
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

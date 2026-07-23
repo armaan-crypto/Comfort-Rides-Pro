@@ -28,6 +28,7 @@ struct DestinationSelector: View {
     @State var isError = false
     @State var error = ""
     @State var layover = 1
+    @State var isHourlyService = false
     @State private var carTypeRates: [String: Int] = [:]   // supabaseId → hourly_rate_cents
 
     var suvRateLabel: String {
@@ -49,7 +50,7 @@ struct DestinationSelector: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         LocationSelector(ride: $ride, placeholder: "Pickup Location", address: $pickupAddress, text: $pickupAddress, isShowing: $showing1, placemark: $pickUpPlacemark)
-                        LocationSelector(ride: $ride, placeholder: "Destination", address: $whereToAddress, text: $whereToText, isShowing: $showing, placemark: $dropOffPlacemark)
+                        DestinationField(ride: $ride, address: $whereToAddress, text: $whereToText, isShowing: $showing, isHourlyService: $isHourlyService, placemark: $dropOffPlacemark)
                     }
                     
                     Rectangle()
@@ -69,7 +70,7 @@ struct DestinationSelector: View {
 //                            ride.carType = .crsedan
 //                            F.vibrate(.heavy)
 //                        }
-                        CarSelectorItem(carType: .crluxury, isSelected: $secondSelected, rateLabel: suvRateLabel)
+                        CarSelectorItem(carType: .crluxury, isSelected: $secondSelected, rateLabel: suvRateLabel, hidePrice: isHourlyService)
                             .onTapGesture {
                                 firstSelected = false
                                 secondSelected = true
@@ -78,17 +79,20 @@ struct DestinationSelector: View {
                             }
                     }
 
-                    Rectangle()
-                        .fill(K.hairline)
-                        .frame(height: 1)
+                    if isHourlyService {
+                        Rectangle()
+                            .fill(K.hairline)
+                            .frame(height: 1)
 
-                    VStack(alignment: .leading, spacing: 16) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Overline(text: "Driver standby")
-                            SerifHeading(text: "Hourly Service", size: 24)
+                        VStack(alignment: .leading, spacing: 16) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Overline(text: "Driver standby")
+                                SerifHeading(text: "Hourly Service", size: 24)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            HourlyServiceView(selected: $layover, carType: ride.carType, hourlyRateCents: carTypeRates[ride.carType?.supabaseId ?? ""])
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        HourlyServiceView(selected: $layover, carType: ride.carType, hourlyRateCents: carTypeRates[ride.carType?.supabaseId ?? ""])
+                        .transition(.opacity.combined(with: .move(edge: .top)))
                     }
 
                     Button {
@@ -109,6 +113,9 @@ struct DestinationSelector: View {
                 .padding(20)
             }
         }
+        .onChange(of: isHourlyService, perform: { hourly in
+            if !hourly { layover = 1 }
+        })
         .task {
             if let rows = try? await BookingService().fetchCarTypes() {
                 carTypeRates = Dictionary(uniqueKeysWithValues: rows.map { ($0.id, $0.hourlyRateCents) })
@@ -117,6 +124,10 @@ struct DestinationSelector: View {
         .onAppear(perform: {
             whereToAddress = ride.dropOffLocation ?? ""
             pickupAddress = ride.pickUpLocation ?? ""
+            if ride.dropOffLocation == "Hourly Service" {
+                isHourlyService = true
+                layover = ride.layover
+            }
             guard let carType = ride.carType else {
                 return
             }
@@ -146,18 +157,17 @@ struct DestinationSelector: View {
 struct HourlyServiceView: View {
 
     @Binding var selected: Int
-    @State var text = "None"
+    @State var text = "Select Layover Length"
     var carType: CarType? = nil
     var hourlyRateCents: Int? = nil
 
     private func hourlyLabel(_ hours: Int) -> String {
-        guard let cents = hourlyRateCents else { return "\(hours) hours" }
-        let total = (150) * hours
+        let total = 150 * hours
         return "\(hours) hours - $\(total)"
     }
 
     private var hourlyRateDisplay: String {
-        if let cents = hourlyRateCents { return "$\(cents / 100)/hr" }
+//        if let cents = hourlyRateCents { return "$\(cents / 100)/hr" }
         return "$150/hr"
     }
 
@@ -171,8 +181,8 @@ struct HourlyServiceView: View {
                 Spacer()
             }
             Menu {
-                Button("None") {
-                    text = "None"
+                Button("Select Layover Length") {
+                    text = "Select Layover Length"
                     selected = 1
                 }
                 ForEach(2...24, id: \.self) { i in
@@ -207,6 +217,11 @@ struct HourlyServiceView: View {
                 )
             }
         }
+        .onAppear {
+            if selected > 1 {
+                text = hourlyLabel(selected)
+            }
+        }
     }
 }
 
@@ -215,6 +230,7 @@ struct CarSelectorItem: View {
     @State var carType: CarType
     @Binding var isSelected: Bool
     var rateLabel: String? = nil
+    var hidePrice: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -248,10 +264,12 @@ struct CarSelectorItem: View {
             }
 
             HStack {
-                Text(rateLabel ?? carType.price(1))
-                    .font(.system(size: 13, weight: .semibold))
-                    .tracking(0.5)
-                    .foregroundColor(K.gold)
+                if !hidePrice {
+                    Text(rateLabel ?? carType.price(1))
+                        .font(.system(size: 13, weight: .semibold))
+                        .tracking(0.5)
+                        .foregroundColor(K.gold)
+                }
                 Spacer()
                 Image(uiImage: UIImage(named: carType.rawValue)!)
                     .resizable()
@@ -334,6 +352,91 @@ struct LocationSelector: View {
                 } else {
                     ride.pickUpLocation = address
                 }
+            })
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(K.surface)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(K.hairline, lineWidth: 1)
+            )
+        }
+    }
+}
+
+struct DestinationField: View {
+
+    @Binding var ride: Ride
+    @Binding var address: String
+    @Binding var text: String
+    @Binding var isShowing: Bool
+    @Binding var isHourlyService: Bool
+    @Binding var placemark: MKPlacemark?
+
+    private var displayText: String {
+        if isHourlyService { return "Hourly Service" }
+        return address.isEmpty ? "Destination" : address
+    }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Menu {
+                Button {
+                    withAnimation { isHourlyService = false }
+                    isShowing = true
+                } label: {
+                    Label("Choose a location", systemImage: "mappin.and.ellipse")
+                }
+                Button {
+                    withAnimation {
+                        isHourlyService = true
+                        address = "Hourly Service"
+                        text = "Hourly Service"
+                        ride.dropOffLocation = "Hourly Service"
+                    }
+                } label: {
+                    Label("Book Hourly Service", systemImage: "clock")
+                }
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: isHourlyService ? "clock" : "magnifyingglass")
+                        .foregroundColor(K.gold)
+                    Text(displayText)
+                        .foregroundColor(displayText == "Destination" ? .white.opacity(0.35) : .white)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .lineLimit(1)
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, 16)
+                .frame(height: 54)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(K.surface)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .strokeBorder(K.hairline, lineWidth: 1)
+                )
+            }
+
+            Button {
+                withAnimation { isHourlyService = false }
+                isShowing = true
+            } label: {
+                Image(systemName: "map")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(K.gold)
+                    .frame(width: 54, height: 54)
+            }
+            .mapItemPicker(isPresented: $isShowing, onDismiss: { item in
+                guard let item = item else { return }
+                text = item.name!
+                let placemark = item.placemark
+                address = "\(placemark.subThoroughfare ?? "") \(placemark.thoroughfare ?? ""), \(placemark.locality ?? ""), \(placemark.administrativeArea ?? ""), \(placemark.postalCode ?? ""), \(placemark.countryCode ?? "")"
+                self.placemark = placemark
+                withAnimation { isHourlyService = false }
+                ride.dropOffLocation = address
             })
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
