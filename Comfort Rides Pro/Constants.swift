@@ -73,7 +73,7 @@ struct CTALabel: View {
                 ProgressView().tint(enabled ? K.ink : K.gold)
             } else {
                 Text(title)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: 16))
                     .tracking(0.5)
                     .foregroundColor(enabled ? K.ink : .white.opacity(0.35))
             }

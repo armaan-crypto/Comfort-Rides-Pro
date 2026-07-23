@@ -38,7 +38,7 @@ struct Login: View {
 
                     NavigationLink(destination: SignInView()) {
                         Text("Sign in")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: 16))
                             .tracking(0.5)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
