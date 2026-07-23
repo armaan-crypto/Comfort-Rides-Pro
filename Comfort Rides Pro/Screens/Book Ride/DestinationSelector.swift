@@ -147,7 +147,8 @@ struct DestinationSelector: View {
     func isDisabled() -> Bool {
         let noCarSelected = !(firstSelected || secondSelected)
         let textFieldsAreEmpty = (whereToAddress.isEmpty || pickupAddress.isEmpty)
-        return (noCarSelected || textFieldsAreEmpty)
+        let noLayoverSelected = (isHourlyService && layover <= 1)
+        return (noCarSelected || textFieldsAreEmpty || noLayoverSelected)
     }
     func buttonColor() -> Color {
         return isDisabled() ? Color.white.opacity(0.08) : K.gold
